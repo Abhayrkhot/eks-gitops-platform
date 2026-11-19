@@ -1,0 +1,1939 @@
+{
+  "rounds": [
+    {
+      "_timeout_hit": false,
+      "all_restored_seconds": 292.21,
+      "apps_synced_healthy_seconds": 298.51,
+      "drifted": 84,
+      "inject_seconds": 0.19,
+      "injection_errors": [],
+      "kinds": [
+        "AnalysisTemplate",
+        "ConfigMap",
+        "Deployment",
+        "LimitRange",
+        "Namespace",
+        "NetworkPolicy",
+        "PodDisruptionBudget",
+        "ResourceQuota",
+        "Role",
+        "RoleBinding",
+        "Rollout",
+        "Service",
+        "ServiceAccount"
+      ],
+      "mode": "modify",
+      "per_resource_seconds": {
+        "max": 292.21,
+        "mean": 260.26,
+        "min": 175.64,
+        "n": 84,
+        "p50": 275.48,
+        "p95": 291.99
+      },
+      "resources": [
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "AnalysisTemplate/storefront/storefront-smoke",
+          "mutation": "loosen failureLimit to 10",
+          "seconds": 292.21
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "ConfigMap/storefront/storefront-config",
+          "mutation": "overwrite a key",
+          "seconds": 291.99
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Deployment/storefront/loadgen",
+          "mutation": "scale replicas to 3",
+          "seconds": 291.99
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "NetworkPolicy/storefront/storefront-ingress",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 291.76
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "PodDisruptionBudget/storefront/storefront",
+          "mutation": "allow 5 unavailable",
+          "seconds": 291.79
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Role/storefront/storefront-config-reader",
+          "mutation": "add the delete verb",
+          "seconds": 291.99
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "RoleBinding/storefront/storefront-config-reader",
+          "mutation": "bind an extra user",
+          "seconds": 291.99
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Rollout/storefront/storefront",
+          "mutation": "scale replicas to 2",
+          "seconds": 292.19
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 291.98
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront-canary",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 291.98
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront-stable",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 291.97
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "ServiceAccount/storefront/storefront",
+          "mutation": "enable token automount",
+          "seconds": 291.77
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ConfigMap/team-analytics/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 282.94
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Deployment/team-analytics/analytics-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 282.93
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "LimitRange/team-analytics/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 282.92
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Namespace/team-analytics",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 282.67
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 282.64
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 282.69
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 282.67
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ResourceQuota/team-analytics/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 282.7
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Role/team-analytics/team-developer",
+          "mutation": "add the delete verb",
+          "seconds": 282.93
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "RoleBinding/team-analytics/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 282.92
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Service/team-analytics/analytics-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 282.92
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ServiceAccount/team-analytics/deployer",
+          "mutation": "enable token automount",
+          "seconds": 282.93
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ConfigMap/team-catalog/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 268.61
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Deployment/team-catalog/catalog-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 268.6
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "LimitRange/team-catalog/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 268.6
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Namespace/team-catalog",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 268.59
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 268.6
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 268.59
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 268.58
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ResourceQuota/team-catalog/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 268.58
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Role/team-catalog/team-developer",
+          "mutation": "add the delete verb",
+          "seconds": 268.57
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "RoleBinding/team-catalog/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 268.56
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Service/team-catalog/catalog-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 268.57
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ServiceAccount/team-catalog/deployer",
+          "mutation": "enable token automount",
+          "seconds": 268.57
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ConfigMap/team-checkout/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 175.65
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Deployment/team-checkout/checkout-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 175.65
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "LimitRange/team-checkout/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 175.66
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Namespace/team-checkout",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 175.67
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 175.66
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 175.66
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 175.66
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ResourceQuota/team-checkout/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 175.65
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Role/team-checkout/team-developer",
+          "mutation": "add the delete verb",
+          "seconds": 175.65
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "RoleBinding/team-checkout/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 175.64
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Service/team-checkout/checkout-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 175.65
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ServiceAccount/team-checkout/deployer",
+          "mutation": "enable token automount",
+          "seconds": 175.65
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ConfigMap/team-identity/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 288.54
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Deployment/team-identity/identity-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 288.75
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "LimitRange/team-identity/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 288.53
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Namespace/team-identity",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 288.53
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 288.53
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 288.52
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 288.53
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ResourceQuota/team-identity/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 288.53
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Role/team-identity/team-developer",
+          "mutation": "add the delete verb",
+          "seconds": 288.52
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "RoleBinding/team-identity/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 288.52
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Service/team-identity/identity-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 288.73
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ServiceAccount/team-identity/deployer",
+          "mutation": "enable token automount",
+          "seconds": 288.52
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ConfigMap/team-payments/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 238.68
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Deployment/team-payments/payments-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 238.92
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "LimitRange/team-payments/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 238.68
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Namespace/team-payments",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 238.68
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 238.67
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 238.68
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 238.67
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ResourceQuota/team-payments/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 238.67
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Role/team-payments/team-developer",
+          "mutation": "add the delete verb",
+          "seconds": 238.67
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "RoleBinding/team-payments/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 238.66
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Service/team-payments/payments-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 238.91
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ServiceAccount/team-payments/deployer",
+          "mutation": "enable token automount",
+          "seconds": 238.66
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ConfigMap/team-search/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 275.48
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Deployment/team-search/search-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 275.71
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "LimitRange/team-search/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 275.48
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Namespace/team-search",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 275.48
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 275.47
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 275.47
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 275.48
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ResourceQuota/team-search/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 275.47
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Role/team-search/team-developer",
+          "mutation": "add the delete verb",
+          "seconds": 275.47
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "RoleBinding/team-search/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 275.71
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Service/team-search/search-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 275.71
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ServiceAccount/team-search/deployer",
+          "mutation": "enable token automount",
+          "seconds": 275.46
+        }
+      ],
+      "restored": 84,
+      "unrestored": []
+    },
+    {
+      "_timeout_hit": false,
+      "all_restored_seconds": 288.28,
+      "apps_synced_healthy_seconds": 294.08,
+      "drifted": 84,
+      "inject_seconds": 0.14,
+      "injection_errors": [],
+      "kinds": [
+        "AnalysisTemplate",
+        "ConfigMap",
+        "Deployment",
+        "LimitRange",
+        "Namespace",
+        "NetworkPolicy",
+        "PodDisruptionBudget",
+        "ResourceQuota",
+        "Role",
+        "RoleBinding",
+        "Rollout",
+        "Service",
+        "ServiceAccount"
+      ],
+      "mode": "delete",
+      "per_resource_seconds": {
+        "max": 288.27,
+        "mean": 256.7,
+        "min": 172.03,
+        "n": 84,
+        "p50": 272.15,
+        "p95": 288.27
+      },
+      "resources": [
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "AnalysisTemplate/storefront/storefront-smoke",
+          "mutation": "delete",
+          "seconds": 288.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "ConfigMap/storefront/storefront-config",
+          "mutation": "delete",
+          "seconds": 288.07
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Deployment/storefront/loadgen",
+          "mutation": "delete",
+          "seconds": 288.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "NetworkPolicy/storefront/storefront-ingress",
+          "mutation": "delete",
+          "seconds": 288.07
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "PodDisruptionBudget/storefront/storefront",
+          "mutation": "delete",
+          "seconds": 288.07
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Role/storefront/storefront-config-reader",
+          "mutation": "delete",
+          "seconds": 288.07
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "RoleBinding/storefront/storefront-config-reader",
+          "mutation": "delete",
+          "seconds": 288.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Rollout/storefront/storefront",
+          "mutation": "delete",
+          "seconds": 288.26
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront",
+          "mutation": "delete",
+          "seconds": 288.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront-canary",
+          "mutation": "delete",
+          "seconds": 288.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront-stable",
+          "mutation": "delete",
+          "seconds": 288.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "ServiceAccount/storefront/storefront",
+          "mutation": "delete",
+          "seconds": 288.06
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ConfigMap/team-analytics/team-settings",
+          "mutation": "delete",
+          "seconds": 279.16
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Deployment/team-analytics/analytics-api",
+          "mutation": "delete",
+          "seconds": 279.16
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "LimitRange/team-analytics/team-defaults",
+          "mutation": "delete",
+          "seconds": 279.16
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Namespace/team-analytics",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 279.16
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/allow-dns",
+          "mutation": "delete",
+          "seconds": 279.16
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 279.15
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/default-deny",
+          "mutation": "delete",
+          "seconds": 279.15
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ResourceQuota/team-analytics/team-quota",
+          "mutation": "delete",
+          "seconds": 279.15
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Role/team-analytics/team-developer",
+          "mutation": "delete",
+          "seconds": 279.16
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "RoleBinding/team-analytics/team-developer",
+          "mutation": "delete",
+          "seconds": 279.15
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Service/team-analytics/analytics-api",
+          "mutation": "delete",
+          "seconds": 279.15
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ServiceAccount/team-analytics/deployer",
+          "mutation": "delete",
+          "seconds": 279.14
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ConfigMap/team-catalog/team-settings",
+          "mutation": "delete",
+          "seconds": 265.26
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Deployment/team-catalog/catalog-api",
+          "mutation": "delete",
+          "seconds": 265.26
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "LimitRange/team-catalog/team-defaults",
+          "mutation": "delete",
+          "seconds": 265.25
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Namespace/team-catalog",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 265.01
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/allow-dns",
+          "mutation": "delete",
+          "seconds": 265.01
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 265.01
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/default-deny",
+          "mutation": "delete",
+          "seconds": 265.01
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ResourceQuota/team-catalog/team-quota",
+          "mutation": "delete",
+          "seconds": 265.01
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Role/team-catalog/team-developer",
+          "mutation": "delete",
+          "seconds": 265.21
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "RoleBinding/team-catalog/team-developer",
+          "mutation": "delete",
+          "seconds": 265.24
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Service/team-catalog/catalog-api",
+          "mutation": "delete",
+          "seconds": 265.24
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ServiceAccount/team-catalog/deployer",
+          "mutation": "delete",
+          "seconds": 265.23
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ConfigMap/team-checkout/team-settings",
+          "mutation": "delete",
+          "seconds": 172.06
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Deployment/team-checkout/checkout-api",
+          "mutation": "delete",
+          "seconds": 172.31
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "LimitRange/team-checkout/team-defaults",
+          "mutation": "delete",
+          "seconds": 172.05
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Namespace/team-checkout",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 172.05
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/allow-dns",
+          "mutation": "delete",
+          "seconds": 172.05
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 172.03
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/default-deny",
+          "mutation": "delete",
+          "seconds": 172.05
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ResourceQuota/team-checkout/team-quota",
+          "mutation": "delete",
+          "seconds": 172.04
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Role/team-checkout/team-developer",
+          "mutation": "delete",
+          "seconds": 172.04
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "RoleBinding/team-checkout/team-developer",
+          "mutation": "delete",
+          "seconds": 172.04
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Service/team-checkout/checkout-api",
+          "mutation": "delete",
+          "seconds": 172.3
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ServiceAccount/team-checkout/deployer",
+          "mutation": "delete",
+          "seconds": 172.04
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ConfigMap/team-identity/team-settings",
+          "mutation": "delete",
+          "seconds": 285.16
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Deployment/team-identity/identity-api",
+          "mutation": "delete",
+          "seconds": 285.12
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "LimitRange/team-identity/team-defaults",
+          "mutation": "delete",
+          "seconds": 285.16
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Namespace/team-identity",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 284.92
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/allow-dns",
+          "mutation": "delete",
+          "seconds": 285.15
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 285.15
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/default-deny",
+          "mutation": "delete",
+          "seconds": 284.91
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ResourceQuota/team-identity/team-quota",
+          "mutation": "delete",
+          "seconds": 285.15
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Role/team-identity/team-developer",
+          "mutation": "delete",
+          "seconds": 285.15
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "RoleBinding/team-identity/team-developer",
+          "mutation": "delete",
+          "seconds": 285.14
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Service/team-identity/identity-api",
+          "mutation": "delete",
+          "seconds": 285.15
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ServiceAccount/team-identity/deployer",
+          "mutation": "delete",
+          "seconds": 285.14
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ConfigMap/team-payments/team-settings",
+          "mutation": "delete",
+          "seconds": 235.03
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Deployment/team-payments/payments-api",
+          "mutation": "delete",
+          "seconds": 235.27
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "LimitRange/team-payments/team-defaults",
+          "mutation": "delete",
+          "seconds": 235.03
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Namespace/team-payments",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 235.02
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/allow-dns",
+          "mutation": "delete",
+          "seconds": 235.03
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 235.03
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/default-deny",
+          "mutation": "delete",
+          "seconds": 235.02
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ResourceQuota/team-payments/team-quota",
+          "mutation": "delete",
+          "seconds": 235.02
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Role/team-payments/team-developer",
+          "mutation": "delete",
+          "seconds": 235.02
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "RoleBinding/team-payments/team-developer",
+          "mutation": "delete",
+          "seconds": 235.0
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Service/team-payments/payments-api",
+          "mutation": "delete",
+          "seconds": 235.27
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ServiceAccount/team-payments/deployer",
+          "mutation": "delete",
+          "seconds": 235.02
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ConfigMap/team-search/team-settings",
+          "mutation": "delete",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Deployment/team-search/search-api",
+          "mutation": "delete",
+          "seconds": 272.16
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "LimitRange/team-search/team-defaults",
+          "mutation": "delete",
+          "seconds": 272.16
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Namespace/team-search",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/allow-dns",
+          "mutation": "delete",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 272.14
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/default-deny",
+          "mutation": "delete",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ResourceQuota/team-search/team-quota",
+          "mutation": "delete",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Role/team-search/team-developer",
+          "mutation": "delete",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "RoleBinding/team-search/team-developer",
+          "mutation": "delete",
+          "seconds": 272.14
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Service/team-search/search-api",
+          "mutation": "delete",
+          "seconds": 272.15
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ServiceAccount/team-search/deployer",
+          "mutation": "delete",
+          "seconds": 272.15
+        }
+      ],
+      "restored": 84,
+      "unrestored": []
+    },
+    {
+      "_timeout_hit": false,
+      "all_restored_seconds": 289.31,
+      "apps_synced_healthy_seconds": 296.66,
+      "drifted": 84,
+      "inject_seconds": 0.21,
+      "injection_errors": [],
+      "kinds": [
+        "AnalysisTemplate",
+        "ConfigMap",
+        "Deployment",
+        "LimitRange",
+        "Namespace",
+        "NetworkPolicy",
+        "PodDisruptionBudget",
+        "ResourceQuota",
+        "Role",
+        "RoleBinding",
+        "Rollout",
+        "Service",
+        "ServiceAccount"
+      ],
+      "mode": "mixed",
+      "per_resource_seconds": {
+        "max": 289.31,
+        "mean": 257.56,
+        "min": 172.94,
+        "n": 84,
+        "p50": 272.92,
+        "p95": 289.1
+      },
+      "resources": [
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "AnalysisTemplate/storefront/storefront-smoke",
+          "mutation": "loosen failureLimit to 10",
+          "seconds": 289.31
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "ConfigMap/storefront/storefront-config",
+          "mutation": "overwrite a key",
+          "seconds": 289.1
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Deployment/storefront/loadgen",
+          "mutation": "scale replicas to 3",
+          "seconds": 289.31
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "NetworkPolicy/storefront/storefront-ingress",
+          "mutation": "delete",
+          "seconds": 289.1
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "PodDisruptionBudget/storefront/storefront",
+          "mutation": "allow 5 unavailable",
+          "seconds": 289.09
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Role/storefront/storefront-config-reader",
+          "mutation": "add the delete verb",
+          "seconds": 289.09
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "RoleBinding/storefront/storefront-config-reader",
+          "mutation": "delete",
+          "seconds": 289.04
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Rollout/storefront/storefront",
+          "mutation": "scale replicas to 2",
+          "seconds": 289.27
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront",
+          "mutation": "delete",
+          "seconds": 289.08
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront-canary",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 289.07
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "Service/storefront/storefront-stable",
+          "mutation": "delete",
+          "seconds": 289.08
+        },
+        {
+          "app": "storefront",
+          "error": null,
+          "key": "ServiceAccount/storefront/storefront",
+          "mutation": "enable token automount",
+          "seconds": 289.08
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ConfigMap/team-analytics/team-settings",
+          "mutation": "delete",
+          "seconds": 280.1
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Deployment/team-analytics/analytics-api",
+          "mutation": "delete",
+          "seconds": 280.11
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "LimitRange/team-analytics/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 280.11
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Namespace/team-analytics",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 279.88
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/allow-dns",
+          "mutation": "delete",
+          "seconds": 279.86
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 279.86
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "NetworkPolicy/team-analytics/default-deny",
+          "mutation": "delete",
+          "seconds": 279.86
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ResourceQuota/team-analytics/team-quota",
+          "mutation": "delete",
+          "seconds": 280.08
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Role/team-analytics/team-developer",
+          "mutation": "delete",
+          "seconds": 280.08
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "RoleBinding/team-analytics/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 280.08
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "Service/team-analytics/analytics-api",
+          "mutation": "delete",
+          "seconds": 280.08
+        },
+        {
+          "app": "tenant-analytics",
+          "error": null,
+          "key": "ServiceAccount/team-analytics/deployer",
+          "mutation": "delete",
+          "seconds": 280.08
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ConfigMap/team-catalog/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 266.1
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Deployment/team-catalog/catalog-api",
+          "mutation": "delete",
+          "seconds": 266.09
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "LimitRange/team-catalog/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 266.09
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Namespace/team-catalog",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 265.85
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/allow-dns",
+          "mutation": "delete",
+          "seconds": 265.85
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 265.84
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "NetworkPolicy/team-catalog/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 265.84
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ResourceQuota/team-catalog/team-quota",
+          "mutation": "delete",
+          "seconds": 266.09
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Role/team-catalog/team-developer",
+          "mutation": "delete",
+          "seconds": 266.09
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "RoleBinding/team-catalog/team-developer",
+          "mutation": "delete",
+          "seconds": 266.09
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "Service/team-catalog/catalog-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 266.08
+        },
+        {
+          "app": "tenant-catalog",
+          "error": null,
+          "key": "ServiceAccount/team-catalog/deployer",
+          "mutation": "delete",
+          "seconds": 266.08
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ConfigMap/team-checkout/team-settings",
+          "mutation": "delete",
+          "seconds": 172.96
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Deployment/team-checkout/checkout-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 173.2
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "LimitRange/team-checkout/team-defaults",
+          "mutation": "delete",
+          "seconds": 172.95
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Namespace/team-checkout",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 172.95
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 172.95
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 172.94
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "NetworkPolicy/team-checkout/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 172.94
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ResourceQuota/team-checkout/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 172.94
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Role/team-checkout/team-developer",
+          "mutation": "delete",
+          "seconds": 172.95
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "RoleBinding/team-checkout/team-developer",
+          "mutation": "delete",
+          "seconds": 172.95
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "Service/team-checkout/checkout-api",
+          "mutation": "delete",
+          "seconds": 173.19
+        },
+        {
+          "app": "tenant-checkout",
+          "error": null,
+          "key": "ServiceAccount/team-checkout/deployer",
+          "mutation": "delete",
+          "seconds": 172.94
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ConfigMap/team-identity/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 285.92
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Deployment/team-identity/identity-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 285.92
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "LimitRange/team-identity/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 285.93
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Namespace/team-identity",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 285.93
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/allow-dns",
+          "mutation": "delete",
+          "seconds": 285.91
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 285.92
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "NetworkPolicy/team-identity/default-deny",
+          "mutation": "delete",
+          "seconds": 285.89
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ResourceQuota/team-identity/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 285.9
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Role/team-identity/team-developer",
+          "mutation": "delete",
+          "seconds": 285.91
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "RoleBinding/team-identity/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 285.91
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "Service/team-identity/identity-api",
+          "mutation": "delete",
+          "seconds": 285.89
+        },
+        {
+          "app": "tenant-identity",
+          "error": null,
+          "key": "ServiceAccount/team-identity/deployer",
+          "mutation": "enable token automount",
+          "seconds": 285.9
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ConfigMap/team-payments/team-settings",
+          "mutation": "overwrite a key",
+          "seconds": 235.98
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Deployment/team-payments/payments-api",
+          "mutation": "delete",
+          "seconds": 235.98
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "LimitRange/team-payments/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 235.97
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Namespace/team-payments",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 235.97
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/allow-dns",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 235.95
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/allow-same-namespace",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 235.95
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "NetworkPolicy/team-payments/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 235.94
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ResourceQuota/team-payments/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 235.94
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Role/team-payments/team-developer",
+          "mutation": "delete",
+          "seconds": 235.94
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "RoleBinding/team-payments/team-developer",
+          "mutation": "delete",
+          "seconds": 235.93
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "Service/team-payments/payments-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 235.94
+        },
+        {
+          "app": "tenant-payments",
+          "error": null,
+          "key": "ServiceAccount/team-payments/deployer",
+          "mutation": "enable token automount",
+          "seconds": 235.92
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ConfigMap/team-search/team-settings",
+          "mutation": "delete",
+          "seconds": 272.9
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Deployment/team-search/search-api",
+          "mutation": "scale replicas to 3",
+          "seconds": 272.92
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "LimitRange/team-search/team-defaults",
+          "mutation": "raise max memory to 4Gi",
+          "seconds": 272.91
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Namespace/team-search",
+          "mutation": "downgrade Pod Security to privileged",
+          "seconds": 272.92
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/allow-dns",
+          "mutation": "delete",
+          "seconds": 272.91
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/allow-same-namespace",
+          "mutation": "delete",
+          "seconds": 272.95
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "NetworkPolicy/team-search/default-deny",
+          "mutation": "drop a policy type (egress or ingress no longer enforced)",
+          "seconds": 272.95
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ResourceQuota/team-search/team-quota",
+          "mutation": "raise pod quota to 999",
+          "seconds": 272.93
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Role/team-search/team-developer",
+          "mutation": "delete",
+          "seconds": 272.92
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "RoleBinding/team-search/team-developer",
+          "mutation": "bind an extra user",
+          "seconds": 272.94
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "Service/team-search/search-api",
+          "mutation": "send traffic to the wrong container port (targetPort 8080)",
+          "seconds": 272.94
+        },
+        {
+          "app": "tenant-search",
+          "error": null,
+          "key": "ServiceAccount/team-search/deployer",
+          "mutation": "enable token automount",
+          "seconds": 272.91
+        }
+      ],
+      "restored": 84,
+      "unrestored": []
+    }
+  ],
+  "singles": [],
+  "summary": {
+    "aborted": null,
+    "all_restored_seconds": {
+      "max": 292.21,
+      "mean": 289.93,
+      "min": 288.28,
+      "n": 3,
+      "p50": 289.31,
+      "p95": 292.21
+    },
+    "apps": [
+      "storefront",
+      "tenant-analytics",
+      "tenant-catalog",
+      "tenant-checkout",
+      "tenant-identity",
+      "tenant-payments",
+      "tenant-search"
+    ],
+    "apps_synced_healthy_seconds": {
+      "max": 298.51,
+      "mean": 296.42,
+      "min": 294.08,
+      "n": 3,
+      "p50": 296.66,
+      "p95": 298.51
+    },
+    "env": "local",
+    "kinds": [
+      "AnalysisTemplate",
+      "ConfigMap",
+      "Deployment",
+      "LimitRange",
+      "Namespace",
+      "NetworkPolicy",
+      "PodDisruptionBudget",
+      "ResourceQuota",
+      "Role",
+      "RoleBinding",
+      "Rollout",
+      "Service",
+      "ServiceAccount"
+    ],
+    "managed_resources": 84,
+    "per_resource_seconds": {
+      "max": 292.21,
+      "mean": 258.17,
+      "min": 172.03,
+      "n": 252,
+      "p50": 272.92,
+      "p95": 289.31
+    },
+    "resources_drifted_total": 252,
+    "resources_restored_total": 252,
+    "rounds": 3,
+    "single_drift_seconds": {
+      "n": 0
+    },
+    "started": "2026-11-19T18:46:15.806176+00:00",
+    "tag": "defaults",
+    "unrestored": []
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "summary": {
+    "bad_releases": 7,
+    "bad_timeouts": 0,
+    "by_mode": {
+      "bad-image-tag": {
+        "caught_by": [
+          "progress-deadline"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 26.51,
+          "mean": 26.51,
+          "min": 26.51,
+          "n": 1,
+          "p50": 26.51,
+          "p95": 26.51
+        }
+      },
+      "crash-loop": {
+        "caught_by": [
+          "progress-deadline"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 25.61,
+          "mean": 25.61,
+          "min": 25.61,
+          "n": 1,
+          "p50": 25.61,
+          "p95": 25.61
+        }
+      },
+      "failing-liveness": {
+        "caught_by": [
+          "analysis"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 17.88,
+          "mean": 17.88,
+          "min": 17.88,
+          "n": 1,
+          "p50": 17.88,
+          "p95": 17.88
+        }
+      },
+      "http-500s": {
+        "caught_by": [
+          "analysis"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 17.47,
+          "mean": 17.47,
+          "min": 17.47,
+          "n": 1,
+          "p50": 17.47,
+          "p95": 17.47
+        }
+      },
+      "never-ready": {
+        "caught_by": [
+          "progress-deadline"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 26.01,
+          "mean": 26.01,
+          "min": 26.01,
+          "n": 1,
+          "p50": 26.01,
+          "p95": 26.01
+        }
+      },
+      "oom-on-start": {
+        "caught_by": [
+          "progress-deadline"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 25.59,
+          "mean": 25.59,
+          "min": 25.59,
+          "n": 1,
+          "p50": 25.59,
+          "p95": 25.59
+        }
+      },
+      "slow-responses": {
+        "caught_by": [
+          "analysis"
+        ],
+        "n": 1,
+        "recovered": 1,
+        "seconds": {
+          "max": 21.35,
+          "mean": 21.35,
+          "min": 21.35,
+          "n": 1,
+          "p50": 21.35,
+          "p95": 21.35
+        }
+      }
+    },
+    "canary_isolated_seconds": {
+      "max": 21.02,
+      "mean": 17.44,
+      "min": 11.64,
+      "n": 7,
+      "p50": 20.61,
+      "p95": 21.02
+    },
+    "client_failed_during_bad_releases": 11,
+    "client_requests_during_bad_releases": 2566,
+    "env": "ci",
+    "escaped": 0,
+    "false_aborts": 0,
+    "git_to_rollout_seconds": {
+      "max": 3.91,
+      "mean": 2.84,
+      "min": 2.28,
+      "n": 9,
+      "p50": 2.69,
+      "p95": 3.91
+    },
+    "good_releases": 2,
+    "promoted": 2,
+    "promotion_seconds": {
+      "max": 38.09,
+      "mean": 35.69,
+      "min": 33.28,
+      "n": 2,
+      "p50": 35.69,
+      "p95": 38.09
+    },
+    "recovered": 7,
+    "recovery_seconds": {
+      "max": 26.51,
+      "mean": 22.92,
+      "min": 17.47,
+      "n": 7,
+      "p50": 25.59,
+      "p95": 26.51
+    },
+    "recovery_seconds_from_push": {
+      "max": 30.42,
+      "mean": 25.78,
+      "min": 19.98,
+      "n": 7,
+      "p50": 28.27,
+      "p95": 30.42
+    },
+    "started": "2026-11-19T18:39:15.162210+00:00"
+  },
+  "trials": [
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 2: ReplicaSet \"storefront-5df65dbd87\" has timed out progressing.",
+      "canary_isolated_s": 20.61,
+      "caught_by": "progress-deadline",
+      "client": {
+        "failed": 0,
+        "requests": 452
+      },
+      "commit": "5d36024",
+      "detect_to_abort_s": 20.61,
+      "git_to_rollout_s": 3.91,
+      "kind": "bad-image-tag",
+      "new_hash": "5df65dbd87",
+      "outcome": "recovered",
+      "release": "r1-bad-image-tag",
+      "seconds": 26.51,
+      "seconds_from_push": 30.42,
+      "stable_before": "6b99bb6749",
+      "trial": 1
+    },
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 4: Step-based analysis phase error/failed: Metric \"smoke\" assessed Failed due to failed (1) > failureLimit (0)",
+      "analysis_phase": "Failed",
+      "canary_isolated_s": 15.53,
+      "caught_by": "analysis",
+      "client": {
+        "failed": 0,
+        "requests": 195
+      },
+      "commit": "3fb84e6",
+      "detect_to_abort_s": 15.32,
+      "git_to_rollout_s": 2.9,
+      "kind": "slow-responses",
+      "new_hash": "7b895cfbbd",
+      "outcome": "recovered",
+      "release": "r2-slow-responses",
+      "seconds": 21.35,
+      "seconds_from_push": 24.25,
+      "stable_before": "6b99bb6749",
+      "trial": 2
+    },
+    {
+      "client": {
+        "failed": 0,
+        "requests": 647
+      },
+      "commit": "913137a",
+      "git_to_rollout_s": 2.88,
+      "kind": "good",
+      "new_hash": "566c75567b",
+      "outcome": "promoted",
+      "release": "r3-good",
+      "seconds": 38.09,
+      "seconds_from_push": 40.96,
+      "stable_before": "6b99bb6749",
+      "trial": 3
+    },
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 7: Step-based analysis phase error/failed: Metric \"smoke\" assessed Failed due to failed (1) > failureLimit (0)",
+      "analysis_phase": "Failed",
+      "canary_isolated_s": 11.86,
+      "caught_by": "analysis",
+      "client": {
+        "failed": 0,
+        "requests": 304
+      },
+      "commit": "ecd3f44",
+      "detect_to_abort_s": 11.86,
+      "git_to_rollout_s": 2.28,
+      "kind": "failing-liveness",
+      "new_hash": "7db688656b",
+      "outcome": "recovered",
+      "release": "r4-failing-liveness",
+      "seconds": 17.88,
+      "seconds_from_push": 20.16,
+      "stable_before": "566c75567b",
+      "trial": 4
+    },
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 9: ReplicaSet \"storefront-78d7d5f5fd\" has timed out progressing.",
+      "canary_isolated_s": 20.61,
+      "caught_by": "progress-deadline",
+      "client": {
+        "failed": 0,
+        "requests": 437
+      },
+      "commit": "3bc3bb8",
+      "detect_to_abort_s": 20.61,
+      "git_to_rollout_s": 2.67,
+      "kind": "crash-loop",
+      "new_hash": "78d7d5f5fd",
+      "outcome": "recovered",
+      "release": "r5-crash-loop",
+      "seconds": 25.61,
+      "seconds_from_push": 28.28,
+      "stable_before": "566c75567b",
+      "trial": 5
+    },
+    {
+      "client": {
+        "failed": 0,
+        "requests": 564
+      },
+      "commit": "3c912c8",
+      "git_to_rollout_s": 2.69,
+      "kind": "good",
+      "new_hash": "7fbb48f45c",
+      "outcome": "promoted",
+      "release": "r6-good",
+      "seconds": 33.28,
+      "seconds_from_push": 35.97,
+      "stable_before": "566c75567b",
+      "trial": 6
+    },
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 12: ReplicaSet \"storefront-789569cc5c\" has timed out progressing.",
+      "canary_isolated_s": 21.02,
+      "caught_by": "progress-deadline",
+      "client": {
+        "failed": 0,
+        "requests": 442
+      },
+      "commit": "1307065",
+      "detect_to_abort_s": 21.02,
+      "git_to_rollout_s": 3.08,
+      "kind": "never-ready",
+      "new_hash": "789569cc5c",
+      "outcome": "recovered",
+      "release": "r7-never-ready",
+      "seconds": 26.01,
+      "seconds_from_push": 29.09,
+      "stable_before": "7fbb48f45c",
+      "trial": 7
+    },
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 14: ReplicaSet \"storefront-649b4db8fd\" has timed out progressing.",
+      "canary_isolated_s": 20.81,
+      "caught_by": "progress-deadline",
+      "client": {
+        "failed": 0,
+        "requests": 438
+      },
+      "commit": "3fd6a0d",
+      "detect_to_abort_s": 20.59,
+      "git_to_rollout_s": 2.68,
+      "kind": "oom-on-start",
+      "new_hash": "649b4db8fd",
+      "outcome": "recovered",
+      "release": "r8-oom-on-start",
+      "seconds": 25.59,
+      "seconds_from_push": 28.27,
+      "stable_before": "7fbb48f45c",
+      "trial": 8
+    },
+    {
+      "abort_message": "RolloutAborted: Rollout aborted update to revision 16: Step-based analysis phase error/failed: Metric \"smoke\" assessed Failed due to failed (1) > failureLimit (0)",
+      "analysis_phase": "Failed",
+      "canary_isolated_s": 11.64,
+      "caught_by": "analysis",
+      "client": {
+        "failed": 11,
+        "requests": 298
+      },
+      "commit": "59c5862",
+      "detect_to_abort_s": 11.44,
+      "git_to_rollout_s": 2.51,
+      "kind": "http-500s",
+      "new_hash": "5f4bf877d5",
+      "outcome": "recovered",
+      "release": "r9-http-500s",
+      "seconds": 17.47,
+      "seconds_from_push": 19.98,
+      "stable_before": "7fbb48f45c",
+      "trial": 9
+    }
+  ]
+}

@@ -86,8 +86,16 @@ There are 24 rules, TF001–TF024, evaluated by conftest on `terraform show -jso
 
 - **Failed release recovered**: the canary ReplicaSet is at zero replicas and zero pods, the stable ReplicaSet is fully available, the Rollout still points at the old stable hash, and so does the `storefront-stable` Service selector. The clock starts when the controller creates the canary revision. Git push to that start is reported separately.
 - **Drift restored**: the live object's Git-owned field equals its pre-drift value again. For deletions, the object exists again with a new UID and the same spec. A round ends when every resource is restored and every app is Synced+Healthy.
+- **Timing resolution**: the drift and rollout harnesses poll the API every 0.2s. A reported time is the first poll that saw the restored or recovered state, so it's an upper bound with 0.2s resolution.
 - **Unsafe change prevented**: either the plan gate denies it with the expected rule (fixtures), or AWS returns AccessDenied/UnauthorizedOperation to the CI role for a real API call (IAM harness).
 - **Platform ready**: from `terraform apply` of an empty environment until every Argo CD app is Synced+Healthy.
+
+## Known limits found while measuring
+
+- **Self-heal can't undo a changed Service `port`.** `port` is the merge key of `spec.ports`. When someone changes 80 to 8080, Argo CD's client-side apply adds the Git entry (80) next to the drifted one (8080) instead of replacing it. Both are named `http`, so the API rejects every sync and the app stays OutOfSync. The first CI e2e run found this. The drift suite now changes `targetPort` instead, which heals in about a second. Fixing it for real takes `Replace=true` or a sync that deletes the extra entry.
+- **Fields Git never set aren't drift.** Argo CD's three-way diff ignores fields that are absent from both the manifest and the last-applied annotation, such as an added `matchLabels` key. Every drift mutation targets a field the chart sets.
+- **The out-of-memory fault needed a writable `/tmp`.** podinfo's `--stress-memory` writes its buffer to `/tmp`. With a read-only root filesystem it silently did nothing, the release was healthy, and Rollouts promoted it, which was correct. The pod now mounts an emptyDir at `/tmp`, so the fault really runs out of memory and gets caught.
+- **Self-heal backoff shows up in back-to-back drift.** When the same app has to heal twice in quick succession, the second repair waits for the backoff, about 6–11s with the tuned settings. A single drift on a quiet app heals in well under a second.
 
 ## Local lab and its gaps
 

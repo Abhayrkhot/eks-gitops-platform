@@ -214,7 +214,7 @@ class Harness:
 
 
 def run_round(h: Harness, targets: list[Target], mode: str, timeout: float) -> dict:
-    if h.wait_apps_ready() is None:
+    if h.wait_apps_ready(max(300, timeout)) is None:
         raise RuntimeError("platform not Synced/Healthy before the round; timings would be meaningless")
     rng = random.Random()
     for t in targets:
@@ -237,7 +237,7 @@ def run_round(h: Harness, targets: list[Target], mode: str, timeout: float) -> d
             pending = [t for t in pending if t.restored_at is None]
             time.sleep(0.2)
     t_all = now()
-    t_apps = h.wait_apps_ready()
+    t_apps = h.wait_apps_ready(max(300, timeout))
 
     per = [t.restored_at - t.injected_at for t in targets if t.restored_at]
     unrestored = [f"{t.key} ({t.mutation})" for t in targets if t.restored_at is None and t.error is None]
@@ -298,7 +298,7 @@ def main() -> None:
         rng = random.Random(11)
         for _ in range(args.single):
             t = copy.copy(rng.choice(targets))
-            r = run_round(h, [t], rng.choice(["modify", "delete"]) if t.kind not in NO_DELETE else "modify", 120)
+            r = run_round(h, [t], rng.choice(["modify", "delete"]) if t.kind not in NO_DELETE else "modify", args.timeout)
             singles.append(r["resources"][0])
             time.sleep(3)
         if singles:
