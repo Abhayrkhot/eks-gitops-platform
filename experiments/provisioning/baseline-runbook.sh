@@ -16,7 +16,7 @@ set -euo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REGION="${REGION:-us-east-1}"
+REGION="${REGION:-us-east-2}"
 NAME="${RUNBOOK_NAME:-runbook-dev}"
 STACK="${NAME}-vpc"
 K8S="${K8S_VERSION:-1.34}"

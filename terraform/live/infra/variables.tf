@@ -4,7 +4,7 @@ variable "environment" {
 
 variable "region" {
   type    = string
-  default = "us-east-1"
+  default = "us-east-2"
 }
 
 variable "aws_endpoint" {
@@ -25,7 +25,7 @@ variable "vpc_cidr" {
 
 variable "azs" {
   type    = list(string)
-  default = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default = ["us-east-2a", "us-east-2b", "us-east-2c"]
 }
 
 variable "nat_gateway" {

@@ -10,7 +10,7 @@ mkrc(type, actions, after) := {
 	"change": {"actions": actions, "before": null, "after": after, "after_unknown": {}},
 }
 
-plan(changes) := {"resource_changes": changes, "variables": {"region": {"value": "us-east-1"}}}
+plan(changes) := {"resource_changes": changes, "variables": {"region": {"value": "us-east-2"}}}
 
 has(rule, msgs) if {
 	some m in msgs

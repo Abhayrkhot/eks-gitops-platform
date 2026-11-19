@@ -82,7 +82,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region: us-east-2
       - name: Plan dev (read-only role)
         env:
           STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
@@ -91,7 +91,7 @@ jobs:
         run: |
           cd terraform/live/infra
           terraform init -input=false -no-color \
-            -backend-config="bucket=$STATE_BUCKET" -backend-config="region=us-east-1" \
+            -backend-config="bucket=$STATE_BUCKET" -backend-config="region=us-east-2" \
             -backend-config="use_lockfile=true" -backend-config="key=dev/infra.tfstate"
           terraform plan -input=false -no-color -lock=false -out=plan.tfplan -var-file=env/dev.tfvars \
             -var "permissions_boundary_arn=$BOUNDARY_ARN" -var "public_access_cidrs=$OPERATOR_CIDRS"

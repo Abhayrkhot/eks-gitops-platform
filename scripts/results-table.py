@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
-ENV_TITLES = {"dev": "Real AWS (EKS, us-east-1)", "local": "Local lab (kind + moto)", "ci": "GitHub Actions (kind + moto)"}
+ENV_TITLES = {"dev": "Real AWS (EKS, us-east-2)", "local": "Local lab (kind + moto)", "ci": "GitHub Actions (kind + moto)"}
 
 
 def newest(env: str, prefix: str, tag: str | None = None) -> tuple[Path, dict] | None:

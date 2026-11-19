@@ -134,7 +134,7 @@
   stack: infra
   expect: [TF016]
   tfvars: |
-    azs = ["us-east-1a", "us-east-1b"]
+    azs = ["us-east-2a", "us-east-2b"]
 
 - id: U15
   name: Remove the NAT gateway (private nodes lose egress)

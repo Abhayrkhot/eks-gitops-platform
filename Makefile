@@ -12,7 +12,7 @@ SHELL := bash
 .DEFAULT_GOAL := help
 
 ENV    ?= local
-REGION ?= us-east-1
+REGION ?= us-east-2
 export PATH := $(HOME)/.local/bin:$(PATH)
 
 MOTO_ENDPOINT := https://127.0.0.1:15566

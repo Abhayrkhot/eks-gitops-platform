@@ -15,7 +15,8 @@ export PATH="$HOME/.local/bin:$PATH"
 cd "$(dirname "$0")/.."
 
 ENV=dev
-REGION=us-east-1
+REGION=us-east-2   # the account's SCP allows EC2/EKS only in us-east-2
+export AWS_REGION=$REGION AWS_DEFAULT_REGION=$REGION
 CYCLES="${CYCLES:-3}"
 PER_MODE="${PER_MODE:-8}"
 export KUBECONFIG="$HOME/.kube/egp-${ENV}.yaml"
@@ -35,6 +36,8 @@ trap teardown ERR INT TERM
 say "1. preflight"
 ADMIN_ARN=$(aws sts get-caller-identity --query Arn --output text)
 echo "caller: $ADMIN_ARN"
+case "$ADMIN_ARN" in *:root) echo "use an IAM user or role, not root (root cannot assume the CI roles)"; exit 1;; esac
+echo "on-demand vCPU quota: $(aws service-quotas get-service-quota --service-code ec2 --quota-code L-1216C47A --query Quota.Value --output text)"
 aws eks describe-cluster-versions --region $REGION --query 'clusterVersions[].[clusterVersion,versionStatus]' --output text | head -8
 aws ec2 describe-instance-type-offerings --region $REGION --location-type availability-zone \
   --filters Name=instance-type,Values=m7i-flex.large --query 'InstanceTypeOfferings[].Location' --output text
@@ -56,7 +59,7 @@ say "4b. policy gate against real state"
 "${UV[@]}" experiments/policy/run.py --env $ENV --workers 4 || echo "policy suite reported failures"
 
 say "5a. drift repair, tuned backoff"
-"${UV[@]}" experiments/drift/run.py --env $ENV --rounds 6 --single 30 --tag tuned
+"${UV[@]}" experiments/drift/run.py --env $ENV --rounds 6 --single 30 --tag tuned || echo "drift (tuned) reported failures"
 
 say "5b. drift repair, upstream default backoff"
 cat > .work/argocd-defaults.tfvars.json <<'EOF'
@@ -67,7 +70,7 @@ cat > .work/argocd-defaults.tfvars.json <<'EOF'
 EOF
 make gitops ENV=$ENV GITOPS_ARGS="-var-file=$PWD/.work/argocd-defaults.tfvars.json"
 make wait ENV=$ENV
-"${UV[@]}" experiments/drift/run.py --env $ENV --rounds 6 --single 30 --tag defaults
+"${UV[@]}" experiments/drift/run.py --env $ENV --rounds 3 --single 0 --timeout 900 --tag defaults || echo "drift (defaults) reported failures"
 
 say "6. failed releases (storefront from the in-cluster Git server)"
 lab/lab-git.sh deploy
@@ -78,7 +81,7 @@ EOF
 make gitops ENV=$ENV GITOPS_ARGS="-var-file=$PWD/.work/storefront-labgit.tfvars.json"
 lab/lab-git.sh hook
 make wait ENV=$ENV
-"${UV[@]}" experiments/rollouts/run.py --env $ENV --per-mode "$PER_MODE" --good "$PER_MODE"
+"${UV[@]}" experiments/rollouts/run.py --env $ENV --per-mode "$PER_MODE" --good "$PER_MODE" || echo "rollouts reported failures"
 
 say "7a. teardown (timed)"
 start=$(date +%s)

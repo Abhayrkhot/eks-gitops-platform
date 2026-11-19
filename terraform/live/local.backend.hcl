@@ -1,7 +1,7 @@
 # Backend settings for local runs against the moto emulator (lab/moto.sh).
 # Real environments use backend-<env>.hcl generated from the bootstrap stack.
 bucket                      = "eks-gitops-tfstate-local"
-region                      = "us-east-1"
+region                      = "us-east-2"
 use_lockfile                = true
 use_path_style              = true
 skip_credentials_validation = true

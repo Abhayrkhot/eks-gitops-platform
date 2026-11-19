@@ -33,7 +33,7 @@ from lib import RESULTS, log, write_json  # noqa: E402
 
 DENIED = {"AccessDenied", "AccessDeniedException", "UnauthorizedOperation", "UnauthorizedAccess",
           "AuthorizationError", "AuthFailure", "Forbidden"}
-REGION = "us-east-1"
+REGION = "us-east-2"
 WORKLOAD_PATH = "/eks-gitops/"
 EC2_TRUST = json.dumps({"Version": "2012-10-17", "Statement": [
     {"Effect": "Allow", "Principal": {"Service": "ec2.amazonaws.com"}, "Action": "sts:AssumeRole"}]})
@@ -45,19 +45,54 @@ def session_for(role_arn: str) -> boto3.Session:
                          aws_session_token=creds["SessionToken"], region_name=REGION)
 
 
-def attempt(fn) -> tuple[str, str]:
-    """Run fn; return (decision, detail). decision is denied | allowed | error."""
+def deny_source(message: str) -> str:
+    """Which policy layer AWS says denied the call (from the error message)."""
+    m = message.lower()
+    if "service control policy" in m:
+        return "scp"  # the account's AWS Organizations policy, not this project
+    if "permissions boundary" in m:
+        return "boundary"
+    if "identity-based policy" in m or "resource-based policy" in m:
+        return "role-policy"
+    return "unattributed"
+
+
+def attempt(fn) -> tuple[str, str, str]:
+    """Run fn; return (decision, detail, source). decision is denied | allowed."""
     try:
         fn()
-        return "allowed", "ok"
+        return "allowed", "ok", ""
     except ClientError as e:
         code = e.response["Error"]["Code"]
         if code == "DryRunOperation":
-            return "allowed", "dry-run would succeed"
+            return "allowed", "dry-run would succeed", ""
         if code in DENIED:
-            return "denied", code
+            return "denied", code, deny_source(e.response["Error"].get("Message", ""))
         # Any other error means IAM let the call through to the service.
-        return "allowed", f"reached service: {code}"
+        return "allowed", f"reached service: {code}", ""
+
+
+def simulate(iam, role_arn: str, action: str, region: str) -> str:
+    """Evaluate the role's own policies + boundary (no SCPs) with the IAM policy simulator."""
+    r = iam.simulate_principal_policy(
+        PolicySourceArn=role_arn, ActionNames=[action], ResourceArns=["*"],
+        ContextEntries=[{"ContextKeyName": "aws:RequestedRegion", "ContextKeyValues": [region],
+                         "ContextKeyType": "string"}])
+    return r["EvaluationResults"][0]["EvalDecision"]  # allowed | explicitDeny | implicitDeny
+
+
+# When the account's own SCP denies a call first, AWS never evaluates this project's
+# boundary, so the live call can't credit it. These checks fall back to the policy
+# simulator to show what the CI role's policies + boundary decide on their own.
+SIMULATE = {
+    "I15": ("ec2:DescribeVpcs", "eu-west-1"),
+    "I16": ("rds:DescribeDBInstances", REGION),
+    "I17": ("lambda:ListFunctions", REGION),
+    "I18": ("cloudtrail:StopLogging", REGION),
+    "I19": ("guardduty:DeleteDetector", REGION),
+    "I20": ("kms:ScheduleKeyDeletion", REGION),
+    "I21": ("organizations:ListAccounts", "us-east-1"),
+}
 
 
 def main() -> None:
@@ -181,12 +216,25 @@ def main() -> None:
 
     results = []
     try:
+        admin_iam = admin.client("iam")
         for cid, role, desc, expected, fn in checks:
-            decision, detail = attempt(fn)
+            decision, detail, source = attempt(fn)
             verdict = "PASS" if decision == expected else "FAIL"
+            simulated = ""
+            if decision == "denied" and source == "scp":
+                # Denied by the account's SCP before this project's policies were evaluated.
+                if cid in SIMULATE:
+                    action, region = SIMULATE[cid]
+                    simulated = simulate(admin_iam, apply_arn if role == "apply" else plan_arn, action, region)
+                    verdict = "PASS" if simulated != "allowed" else "FAIL"
+                    source = "boundary (simulated; live call hit the SCP first)"
+                else:
+                    verdict = "SCP_ONLY"
             results.append({"id": cid, "role": role, "check": desc, "expected": expected,
-                            "decision": decision, "detail": detail, "verdict": verdict})
-            log(f"{cid} {role:5s} {verdict}  expected={expected:7s} got={decision:7s} ({detail})  {desc}")
+                            "decision": decision, "detail": detail, "denied_by": source,
+                            "simulated": simulated, "verdict": verdict})
+            log(f"{cid} {role:5s} {verdict}  expected={expected:7s} got={decision:7s} "
+                f"({detail}{', ' + source if source else ''})  {desc}")
     finally:
         aiam, as3 = admin.client("iam"), admin.client("s3")
         for client, name in created_roles:
@@ -216,6 +264,9 @@ def main() -> None:
         "unsafe_calls": len(unsafe),
         "denied": sum(r["verdict"] == "PASS" for r in unsafe),
         "unsafe_allowed": [r["id"] for r in unsafe if r["verdict"] == "FAIL"],
+        "denied_only_by_account_scp": [r["id"] for r in unsafe if r["verdict"] == "SCP_ONLY"],
+        "denied_by_layer": {s: sum(r["denied_by"] == s for r in unsafe if r["verdict"] == "PASS")
+                            for s in sorted({r["denied_by"] for r in unsafe if r["verdict"] == "PASS"})},
         "controls": len(controls),
         "controls_allowed": sum(r["verdict"] == "PASS" for r in controls),
         "controls_broken": [r["id"] for r in controls if r["verdict"] == "FAIL"],

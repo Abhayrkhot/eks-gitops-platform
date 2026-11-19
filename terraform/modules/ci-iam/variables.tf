@@ -44,7 +44,7 @@ variable "state_bucket_arn" {
 
 variable "allowed_regions" {
   type    = list(string)
-  default = ["us-east-1"]
+  default = ["us-east-2"]
 }
 
 variable "allowed_instance_types" {
