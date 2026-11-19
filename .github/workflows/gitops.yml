@@ -51,7 +51,7 @@ jobs:
       KUBECONFIG: /home/runner/.kube/egp-gitops.yaml
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - name: Install toolchain
         run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Platform up (moto + kind + Argo CD + every app)

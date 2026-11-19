@@ -53,7 +53,7 @@ jobs:
     needs: static
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - name: Install toolchain
         run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Emulated AWS account (moto) with remote state
