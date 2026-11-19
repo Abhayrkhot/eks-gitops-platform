@@ -35,8 +35,8 @@ FIXTURES = Path(__file__).with_name("fixtures.yaml")
 RULE_ID = re.compile(r"^(TF\d{3})\b")
 
 
-def tf_output(stack_dir: Path, name: str) -> str:
-    return subprocess.run(["terraform", f"-chdir={stack_dir}", "output", "-raw", name],
+def tf_output(stack_dir: Path, name: str, env: str) -> str:
+    return subprocess.run(["terraform", f"-chdir={stack_dir}", "output", f"-state=terraform.{env}.tfstate", "-raw", name],
                           check=True, capture_output=True, text=True).stdout.strip()
 
 
@@ -54,7 +54,7 @@ def stack_settings(env: str) -> dict:
                 "init": [],
                 "vars": ["-var", "aws_endpoint=https://127.0.0.1:15566",
                          "-var", "state_bucket_name=eks-gitops-tfstate-local", "-var", "force_destroy_state=true"],
-                "state": boot / "terraform.tfstate",
+                "state": boot / "terraform.local.tfstate",
             },
         }
     return {
@@ -62,11 +62,11 @@ def stack_settings(env: str) -> dict:
             "dir": "live/infra",
             "init": [f"-backend-config=../backend-{env}.hcl", f"-backend-config=key={env}/infra.tfstate"],
             "vars": [f"-var-file=env/{env}.tfvars",
-                     "-var", f"permissions_boundary_arn={tf_output(boot, 'permissions_boundary_arn')}",
+                     "-var", f"permissions_boundary_arn={tf_output(boot, "permissions_boundary_arn", env)}",
                      "-var", "public_access_cidrs=[\"" + subprocess.run(
                          ["curl", "-s", "https://checkip.amazonaws.com"], capture_output=True, text=True).stdout.strip() + "/32\"]"],
         },
-        "bootstrap": {"dir": "bootstrap", "init": [], "vars": [], "state": boot / "terraform.tfstate"},
+        "bootstrap": {"dir": "bootstrap", "init": [], "vars": [], "state": boot / f"terraform.{env}.tfstate"},
     }
 
 
@@ -76,7 +76,7 @@ def make_workspace(fx: dict, settings: dict) -> Path:
         shutil.rmtree(ws)
     shutil.copytree(
         ROOT / "terraform", ws / "terraform",
-        ignore=shutil.ignore_patterns(".terraform", "terraform.tfstate*", "*.tfplan", "*.tfplan.json"),
+        ignore=shutil.ignore_patterns(".terraform", "*.tfstate", "*.tfstate.*", "*.tfplan", "*.tfplan.json"),
     )
     stack = settings[fx["stack"]]
     sdir = ws / "terraform" / stack["dir"]

@@ -61,6 +61,7 @@ module "gitops" {
   environment          = var.environment
   cluster_name         = local.infra.cluster_name
   argocd_chart_version = var.argocd_chart_version
+  argocd_values        = var.argocd_values
   argocd_values_files = compact([
     "${path.root}/../../../gitops/argocd/values.yaml",
     fileexists("${path.root}/../../../gitops/argocd/values-${var.environment}.yaml") ? "${path.root}/../../../gitops/argocd/values-${var.environment}.yaml" : "",

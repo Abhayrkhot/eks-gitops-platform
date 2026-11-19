@@ -7,7 +7,8 @@ terraform {
     }
   }
   # The bootstrap stack creates the state bucket, so it keeps its own state
-  # locally (gitignored) — the one chicken-and-egg exception.
+  # locally (gitignored), one file per target: terraform.<env>.tfstate.
+  backend "local" {}
 }
 
 locals {

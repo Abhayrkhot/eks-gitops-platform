@@ -47,3 +47,9 @@ variable "apps" {
   type    = any
   default = {}
 }
+
+variable "argocd_values" {
+  description = "argo-cd chart values merged over gitops/argocd/values*.yaml (used to A/B self-heal settings)."
+  type        = any
+  default     = {}
+}

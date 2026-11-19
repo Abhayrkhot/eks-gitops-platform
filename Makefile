@@ -28,6 +28,8 @@ endif
 export KUBECONFIG := $(KUBECONFIG_FILE)
 
 TF_BOOT   := terraform -chdir=terraform/bootstrap
+# Bootstrap state is local, one file per target (local emulator, dev, ...).
+BOOT_OUT  := terraform -chdir=terraform/bootstrap output -state=terraform.$(ENV).tfstate -raw
 TF_INFRA  := terraform -chdir=terraform/live/infra
 TF_GITOPS := terraform -chdir=terraform/live/gitops
 
@@ -45,7 +47,7 @@ moto-up: ## Start the moto AWS emulator
 	lab/moto.sh up
 
 local-bootstrap: moto-up ## State bucket + CI IAM on the emulator
-	$(TF_BOOT) init -input=false -no-color >/dev/null
+	$(TF_BOOT) init -input=false -no-color -reconfigure -backend-config=path=terraform.local.tfstate >/dev/null
 	$(TF_BOOT) apply -input=false -auto-approve -no-color \
 	  -var aws_endpoint=$(MOTO_ENDPOINT) -var state_bucket_name=$(LOCAL_BUCKET) -var force_destroy_state=true
 
@@ -64,7 +66,7 @@ lab-git: ## In-cluster Git server, seeded with this working tree
 
 local-gitops: ## Argo CD + root app on kind (reads the infra stack's remote state)
 	$(TF_GITOPS) init -input=false -no-color -reconfigure -backend-config=$(BACKEND_HCL) -backend-config=key=local/gitops.tfstate >/dev/null
-	$(TF_GITOPS) apply -input=false -auto-approve -no-color -var-file=env/local.tfvars -var kubeconfig_path=$(KUBECONFIG_FILE) -var kube_context=kind-gitops
+	$(TF_GITOPS) apply -input=false -auto-approve -no-color -var-file=env/local.tfvars -var kubeconfig_path=$(KUBECONFIG_FILE) -var kube_context=kind-gitops $(GITOPS_ARGS)
 	lab/lab-git.sh hook
 
 local-up: local-bootstrap local-infra kind-up lab-git local-gitops wait ## Whole local platform, end to end
@@ -72,25 +74,25 @@ local-up: local-bootstrap local-infra kind-up lab-git local-gitops wait ## Whole
 local-down: ## Delete the kind cluster and wipe the emulator
 	kind delete cluster --name gitops || true
 	lab/moto.sh down
-	rm -f terraform/bootstrap/terraform.tfstate*
+	rm -f terraform/bootstrap/terraform.local.tfstate terraform/bootstrap/terraform.local.tfstate.backup
 
 # ---------------------------------------------------------------- real AWS
 .PHONY: bootstrap backend-config infra gitops kubeconfig up down
 bootstrap: ## State bucket + GitHub OIDC CI roles (local state, run once per account)
-	$(TF_BOOT) init -input=false -no-color >/dev/null
+	$(TF_BOOT) init -input=false -no-color -reconfigure -backend-config=path=terraform.$(ENV).tfstate >/dev/null
 	$(TF_BOOT) apply -input=false -no-color $(BOOTSTRAP_ARGS)
 	$(MAKE) backend-config ENV=$(ENV)
 
 backend-config: ## Write backend-<env>.hcl from the bootstrap outputs
 	@printf 'bucket       = "%s"\nregion       = "%s"\nuse_lockfile = true\nencrypt      = true\n' \
-	  "$$($(TF_BOOT) output -raw state_bucket)" "$(REGION)" > terraform/live/backend-$(ENV).hcl
+	  "$$($(BOOT_OUT) state_bucket)" "$(REGION)" > terraform/live/backend-$(ENV).hcl
 	@echo "wrote terraform/live/backend-$(ENV).hcl"
 
 infra: ## Apply the infra stack for ENV
 	$(TF_INFRA) init -input=false -no-color -reconfigure -backend-config=$(BACKEND_HCL) -backend-config=key=$(ENV)/infra.tfstate >/dev/null
 	$(TF_INFRA) apply -input=false -auto-approve -no-color -var-file=env/$(ENV).tfvars \
 	  -var 'public_access_cidrs=["'"$$(curl -s https://checkip.amazonaws.com)"'/32"]' \
-	  -var permissions_boundary_arn="$$($(TF_BOOT) output -raw permissions_boundary_arn)"
+	  -var permissions_boundary_arn="$$($(BOOT_OUT) permissions_boundary_arn)"
 
 kubeconfig: ## Write the EKS kubeconfig for ENV to its own file
 	aws eks update-kubeconfig --region $(REGION) --name "$$($(TF_INFRA) output -raw cluster_name)" --kubeconfig $(KUBECONFIG_FILE) >/dev/null
@@ -98,16 +100,16 @@ kubeconfig: ## Write the EKS kubeconfig for ENV to its own file
 gitops: ## Argo CD + root app on EKS
 	$(TF_GITOPS) init -input=false -no-color -reconfigure -backend-config=$(BACKEND_HCL) -backend-config=key=$(ENV)/gitops.tfstate >/dev/null
 	$(TF_GITOPS) apply -input=false -auto-approve -no-color -var-file=env/$(ENV).tfvars \
-	  -var state_bucket="$$($(TF_BOOT) output -raw state_bucket)" $(GITOPS_ARGS)
+	  -var state_bucket="$$($(BOOT_OUT) state_bucket)" $(GITOPS_ARGS)
 
 up: infra kubeconfig gitops wait ## Full platform on AWS for ENV
 
 down: ## Destroy the GitOps layer, then the infra stack, for ENV
 	-$(TF_GITOPS) destroy -input=false -auto-approve -no-color -var-file=env/$(ENV).tfvars \
-	  -var state_bucket="$$($(TF_BOOT) output -raw state_bucket)"
+	  -var state_bucket="$$($(BOOT_OUT) state_bucket)"
 	$(TF_INFRA) destroy -input=false -auto-approve -no-color -var-file=env/$(ENV).tfvars \
 	  -var 'public_access_cidrs=["'"$$(curl -s https://checkip.amazonaws.com)"'/32"]' \
-	  -var permissions_boundary_arn="$$($(TF_BOOT) output -raw permissions_boundary_arn)"
+	  -var permissions_boundary_arn="$$($(BOOT_OUT) permissions_boundary_arn)"
 
 # ---------------------------------------------------------------- checks
 .PHONY: wait status

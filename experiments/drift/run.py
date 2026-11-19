@@ -75,8 +75,12 @@ MODIFY = {
                    lambda o: (MERGE_PATCH, {"spec": {"replicas": 3}})),
     "Rollout": ("scale replicas to 2", proj_spec("replicas"),
                 lambda o: (MERGE_PATCH, {"spec": {"replicas": 2}})),
-    "Service": ("change port to 8080", lambda o: [p.get("port") for p in o["spec"]["ports"]],
-                lambda o: (JSON_PATCH, [{"op": "replace", "path": "/spec/ports/0/port", "value": 8080}])),
+    # targetPort, not port: `port` is the merge key of the ports list, so a
+    # client-side apply adds the Git entry next to the drifted one and the API
+    # rejects the duplicate port name (see docs/design.md, known limits).
+    "Service": ("send traffic to the wrong container port (targetPort 8080)",
+                lambda o: [p.get("targetPort") for p in o["spec"]["ports"]],
+                lambda o: (JSON_PATCH, [{"op": "replace", "path": "/spec/ports/0/targetPort", "value": 8080}])),
     "ConfigMap": ("overwrite a key", lambda o: copy.deepcopy(o.get("data")),
                   lambda o: (MERGE_PATCH, {"data": {sorted(o["data"])[0]: "drifted"}})),
     "ResourceQuota": ("raise pod quota to 999", proj_spec("hard"),
@@ -141,13 +145,21 @@ class Harness:
             for a in apps
         )
 
-    def wait_apps_ready(self, timeout=300) -> float:
+    def wait_apps_ready(self, timeout=300) -> float | None:
         start = now()
         while now() - start < timeout:
             if self.apps_ready():
                 return now()
             time.sleep(0.5)
-        raise TimeoutError("applications did not return to Synced/Healthy")
+        for a in self.applications():
+            st = a.get("status", {})
+            if a["metadata"]["name"].startswith(APP_PREFIXES) and (
+                st.get("sync", {}).get("status") != "Synced" or st.get("health", {}).get("status") != "Healthy"
+            ):
+                msg = (st.get("operationState") or {}).get("message", "")
+                log(f"  not ready: {a['metadata']['name']} sync={st.get('sync', {}).get('status')} "
+                    f"health={st.get('health', {}).get('status')} {msg[:300]}")
+        return None
 
     def discover(self) -> list[Target]:
         out = []
@@ -202,7 +214,8 @@ class Harness:
 
 
 def run_round(h: Harness, targets: list[Target], mode: str, timeout: float) -> dict:
-    h.wait_apps_ready()
+    if h.wait_apps_ready() is None:
+        raise RuntimeError("platform not Synced/Healthy before the round; timings would be meaningless")
     rng = random.Random()
     for t in targets:
         t.restored_at, t.error, t.extra = None, None, {}
@@ -227,15 +240,20 @@ def run_round(h: Harness, targets: list[Target], mode: str, timeout: float) -> d
     t_apps = h.wait_apps_ready()
 
     per = [t.restored_at - t.injected_at for t in targets if t.restored_at]
+    unrestored = [f"{t.key} ({t.mutation})" for t in targets if t.restored_at is None and t.error is None]
+    for u in unrestored:
+        log(f"  NOT RESTORED: {u}")
     return {
         "mode": mode,
         "drifted": len(targets),
         "injection_errors": [t.key + ": " + t.error for t in targets if t.error],
         "restored": len(per),
-        "unrestored": [t.key for t in targets if t.restored_at is None and t.error is None],
+        "unrestored": unrestored,
         "inject_seconds": round(t_injected - t0, 2),
-        "all_restored_seconds": round(max(t.restored_at for t in targets if t.restored_at) - t0, 2) if per else None,
-        "apps_synced_healthy_seconds": round(t_apps - t0, 2),
+        # Only meaningful when everything came back.
+        "all_restored_seconds": round(max(t.restored_at for t in targets if t.restored_at) - t0, 2)
+        if per and not unrestored else None,
+        "apps_synced_healthy_seconds": round(t_apps - t0, 2) if t_apps else None,
         "per_resource_seconds": summarize(per),
         "kinds": sorted({t.kind for t in targets}),
         "resources": [
@@ -264,39 +282,47 @@ def main() -> None:
         + ", ".join(sorted({t.kind for t in targets})))
 
     started = dt.datetime.now(dt.timezone.utc)
-    rounds = []
-    cycle = ["modify", "delete", "mixed"]
-    for i in range(args.rounds):
-        mode = cycle[i % len(cycle)]
-        r = run_round(h, targets, mode, args.timeout)
-        rounds.append(r)
-        log(f"round {i + 1}/{args.rounds} {mode:6s}: {r['restored']}/{r['drifted']} restored, "
-            f"all in {r['all_restored_seconds']}s, apps healthy in {r['apps_synced_healthy_seconds']}s, "
-            f"per-resource p50 {r['per_resource_seconds'].get('p50')}s")
-        time.sleep(5)
+    rounds, singles = [], []
+    aborted = None
+    try:
+        cycle = ["modify", "delete", "mixed"]
+        for i in range(args.rounds):
+            mode = cycle[i % len(cycle)]
+            r = run_round(h, targets, mode, args.timeout)
+            rounds.append(r)
+            log(f"round {i + 1}/{args.rounds} {mode:6s}: {r['restored']}/{r['drifted']} restored, "
+                f"all in {r['all_restored_seconds']}s, apps healthy in {r['apps_synced_healthy_seconds']}s, "
+                f"per-resource p50 {r['per_resource_seconds'].get('p50')}s")
+            time.sleep(5)
 
-    singles = []
-    rng = random.Random(11)
-    for i in range(args.single):
-        t = copy.copy(rng.choice(targets))
-        r = run_round(h, [t], rng.choice(["modify", "delete"]) if t.kind not in NO_DELETE else "modify", 120)
-        singles.append(r["resources"][0])
-        time.sleep(3)
-    if singles:
-        log(f"single drifts: {summarize([s['seconds'] for s in singles if s['seconds'] is not None])}")
+        rng = random.Random(11)
+        for _ in range(args.single):
+            t = copy.copy(rng.choice(targets))
+            r = run_round(h, [t], rng.choice(["modify", "delete"]) if t.kind not in NO_DELETE else "modify", 120)
+            singles.append(r["resources"][0])
+            time.sleep(3)
+        if singles:
+            log(f"single drifts: {summarize([s['seconds'] for s in singles if s['seconds'] is not None])}")
+    except RuntimeError as e:
+        # Keep the partial results: a round that never healed is the finding.
+        aborted = str(e)
+        log(f"ABORTED: {aborted}")
 
     summary = {
         "env": args.env,
         "tag": args.tag,
         "started": started.isoformat(),
+        "aborted": aborted,
         "managed_resources": len(targets),
         "apps": sorted({t.app for t in targets}),
         "kinds": sorted({t.kind for t in targets}),
         "rounds": len(rounds),
         "resources_drifted_total": sum(r["drifted"] for r in rounds),
         "resources_restored_total": sum(r["restored"] for r in rounds),
+        "unrestored": [u for r in rounds for u in r["unrestored"]],
         "all_restored_seconds": summarize([r["all_restored_seconds"] for r in rounds if r["all_restored_seconds"]]),
-        "apps_synced_healthy_seconds": summarize([r["apps_synced_healthy_seconds"] for r in rounds]),
+        "apps_synced_healthy_seconds": summarize([r["apps_synced_healthy_seconds"] for r in rounds
+                                                  if r["apps_synced_healthy_seconds"]]),
         "per_resource_seconds": summarize([x["seconds"] for r in rounds for x in r["resources"] if x["seconds"] is not None]),
         "single_drift_seconds": summarize([s["seconds"] for s in singles if s["seconds"] is not None]),
     }
@@ -304,6 +330,7 @@ def main() -> None:
     suffix = f"-{args.tag}" if args.tag else ""
     write_json(RESULTS / args.env / f"drift-{stamp}{suffix}.json", {"summary": summary, "rounds": rounds, "singles": singles})
     print(yaml.safe_dump(summary, sort_keys=False))
+    sys.exit(1 if aborted or summary["unrestored"] else 0)
 
 
 if __name__ == "__main__":

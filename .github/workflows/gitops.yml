@@ -60,7 +60,7 @@ jobs:
           git config --global user.name ci && git config --global user.email ci@example.invalid
           make local-up
       - name: Drift repair (all managed resources, 3 rounds)
-        run: uv run --with-requirements experiments/requirements.txt experiments/drift/run.py --env ci --rounds 3
+        run: uv run --with-requirements experiments/requirements.txt experiments/drift/run.py --env ci --rounds 3 --tag tuned
       - name: Failed releases (one per fault mode) and good releases
         run: uv run --with-requirements experiments/requirements.txt experiments/rollouts/run.py --env ci --per-mode 1 --good 2
       - name: Fail on any escaped release or unrestored drift
