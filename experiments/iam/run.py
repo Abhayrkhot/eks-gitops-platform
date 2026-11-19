@@ -22,6 +22,7 @@ import datetime as dt
 import json
 import sys
 import uuid
+from collections import Counter
 from pathlib import Path
 
 import boto3
@@ -92,6 +93,7 @@ SIMULATE = {
     "I19": ("guardduty:DeleteDetector", REGION),
     "I20": ("kms:ScheduleKeyDeletion", REGION),
     "I21": ("organizations:ListAccounts", "us-east-1"),
+    "I23": ("ec2:ModifySnapshotAttribute", REGION),
 }
 
 
@@ -121,11 +123,17 @@ def main() -> None:
     state_key = next((o["Key"] for o in admin.client("s3").list_objects_v2(Bucket=bucket).get("Contents", [])
                       if o["Key"].endswith(".tfstate")), "dev/infra.tfstate")
 
-    # Throwaway resources the guardrails must protect.
+    # A throwaway VPC the guardrails must protect (tagged, removed in `finally`).
     admin_ec2 = admin.client("ec2")
     protected_vpc = admin_ec2.create_vpc(CidrBlock="10.99.0.0/28", TagSpecifications=[{
         "ResourceType": "vpc", "Tags": [{"Key": "Protection", "Value": "protected"},
                                         {"Key": "Name", "Value": f"guardrail-test-{tag}"}]}])["Vpc"]["VpcId"]
+
+    def cleanup_throwaways() -> None:
+        try:
+            admin_ec2.delete_vpc(VpcId=protected_vpc)
+        except ClientError as e:
+            log(f"cleanup vpc {protected_vpc}: {e.response['Error']['Code']}")
     created_roles: list[tuple[boto3.client, str]] = []
     created_users: list[str] = []
     created_lock_keys: list[tuple[boto3.client, str]] = []
@@ -197,7 +205,7 @@ def main() -> None:
          lambda: a_ec2.delete_vpc(VpcId=protected_vpc)),
         ("I23", "apply", "make a snapshot public", "denied",
          lambda: a_ec2.modify_snapshot_attribute(SnapshotId="snap-0123456789abcdef0", Attribute="createVolumePermission",
-                                                  OperationType="add", GroupNames=["all"])),
+                                                  OperationType="add", GroupNames=["all"], DryRun=True)),
         ("I24", "apply", "turn off account-wide S3 public access block", "denied",
          lambda: ap_s.client("s3control").delete_public_access_block(AccountId=account)),
         ("C03", "apply", "CONTROL: describe VPCs in the allowed region", "allowed", lambda: a_ec2.describe_vpcs()),
@@ -221,15 +229,19 @@ def main() -> None:
             decision, detail, source = attempt(fn)
             verdict = "PASS" if decision == expected else "FAIL"
             simulated = ""
-            if decision == "denied" and source == "scp":
-                # Denied by the account's SCP before this project's policies were evaluated.
-                if cid in SIMULATE:
-                    action, region = SIMULATE[cid]
-                    simulated = simulate(admin_iam, apply_arn if role == "apply" else plan_arn, action, region)
-                    verdict = "PASS" if simulated != "allowed" else "FAIL"
-                    source = "boundary (simulated; live call hit the SCP first)"
-                else:
-                    verdict = "SCP_ONLY"
+            # The live call can't credit this project when the account SCP denied it first, when
+            # the message names no policy (Organizations in a member account), or when the service
+            # rejected the target before authorizing (KMS looks a key up before IAM is asked, and
+            # this account's SCP forbids creating a real key to test against).
+            not_ours = decision == "denied" and source in ("scp", "unattributed")
+            inconclusive = decision == "allowed" and expected == "denied" and detail.startswith("reached service")
+            if (not_ours or inconclusive) and cid in SIMULATE:
+                action, region = SIMULATE[cid]
+                simulated = simulate(admin_iam, apply_arn if role == "apply" else plan_arn, action, region)
+                verdict = "PASS" if simulated != "allowed" else "FAIL"
+                source = f"ci-role policies (simulated: {simulated}; live call: {source or detail})"
+            elif not_ours:
+                verdict = "NOT_CREDITED"
             results.append({"id": cid, "role": role, "check": desc, "expected": expected,
                             "decision": decision, "detail": detail, "denied_by": source,
                             "simulated": simulated, "verdict": verdict})
@@ -254,7 +266,7 @@ def main() -> None:
             versions = as3.list_object_versions(Bucket=bucket, Prefix=key).get("Versions", [])
             for v in versions:
                 as3.delete_object(Bucket=bucket, Key=key, VersionId=v["VersionId"])
-        admin_ec2.delete_vpc(VpcId=protected_vpc)
+        cleanup_throwaways()
 
     unsafe = [r for r in results if r["expected"] == "denied"]
     controls = [r for r in results if r["expected"] == "allowed"]
@@ -264,9 +276,10 @@ def main() -> None:
         "unsafe_calls": len(unsafe),
         "denied": sum(r["verdict"] == "PASS" for r in unsafe),
         "unsafe_allowed": [r["id"] for r in unsafe if r["verdict"] == "FAIL"],
-        "denied_only_by_account_scp": [r["id"] for r in unsafe if r["verdict"] == "SCP_ONLY"],
-        "denied_by_layer": {s: sum(r["denied_by"] == s for r in unsafe if r["verdict"] == "PASS")
-                            for s in sorted({r["denied_by"] for r in unsafe if r["verdict"] == "PASS"})},
+        "not_credited": [r["id"] for r in unsafe if r["verdict"] == "NOT_CREDITED"],
+        "simulated": [r["id"] for r in unsafe if r["simulated"]],
+        "denied_by_layer": dict(sorted(Counter(
+            "simulator" if r["simulated"] else r["denied_by"] for r in unsafe if r["verdict"] == "PASS").items())),
         "controls": len(controls),
         "controls_allowed": sum(r["verdict"] == "PASS" for r in controls),
         "controls_broken": [r["id"] for r in controls if r["verdict"] == "FAIL"],

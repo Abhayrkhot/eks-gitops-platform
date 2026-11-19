@@ -9,7 +9,23 @@ Every number below comes from a harness in `experiments/` and is written to `res
 
 ## Measured results
 
-Measured in the local lab (kind + moto) and in CI. **The real-EKS runs are the next phase** and will be added under their own heading in `docs/results.md`.
+### Real AWS: EKS 1.34 in us-east-2, two m7i-flex.large nodes
+
+| Area | What was measured | Result |
+|---|---|---|
+| Provisioning | Empty account to every Argo CD app Synced+Healthy, 3 timed cycles (`terraform apply`, kubeconfig, Argo CD, convergence from Git) | Median **15.5 min**, max **16.3 min**. `terraform apply` 10.8 min, Argo CD install 1.0 min, convergence 4.3 min. Teardown median 11.7 min |
+| Progressive delivery | 56 bad releases (7 fault types × 8) shipped through Git | **56/56 rolled back automatically**, none escaped. Recovery to full stable capacity: median 25.8s, **max 27.4s**. Bad version out of traffic in at most 21.8s |
+| | 8 good releases interleaved | 8/8 promoted, **0 false aborts** |
+| | Client traffic during the bad releases | 90 of 20,579 requests failed (0.44%) |
+| Drift repair | 84 managed resources across 13 kinds and 7 apps, all drifted at once, 6 rounds | **504/504 restored**. A whole round healed in at most **17.1s**, and every app was Synced+Healthy again within 31.2s. A single drifted resource: median 0.5s |
+| | Same test with Argo CD's default self-heal backoff | 252/252 restored, but only after 243–290s per round, about **19× slower** (median 287.7s vs 15.3s) |
+| Policy gate | Unsafe Terraform pull requests, planned against the real S3 remote state | **40/40 blocked** with the expected rule; all 24 rules exercised. About 12s per pull request |
+| | Safe pull requests and no-change plans | **14/14 passed**, 0 false positives |
+| IAM guardrails | Real API calls the CI roles must not be able to make | **28/28 denied**: 25 live by the roles' policies and permissions boundary, 3 decided by the IAM policy simulator because the live call couldn't show it (see `docs/results.md`). Controls: 5/5 allowed in the first run; in the final run one dry-run launch was blocked by the account's own organization policy |
+
+Not measured yet: the comparison baseline, which provisions the same cluster by following AWS's getting-started CLI steps. During the run, the AWS Organization that owns the account attached a policy denying all compute creation (`eks:CreateCluster`, `ec2:RunInstances`, `cloudformation:CreateStack`, and more). It runs with `experiments/provisioning/run.py --baseline` once that is lifted.
+
+### Local lab (kind + moto) and CI
 
 | Area | What was measured | Result |
 |---|---|---|

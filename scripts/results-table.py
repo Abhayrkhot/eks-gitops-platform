@@ -121,13 +121,26 @@ def iam(env: str) -> list[str]:
         return []
     path, doc = got
     sm = doc["summary"]
+    checks = doc["checks"]
+    simulated = [c["id"] for c in checks if c.get("simulated")]
+    live = sm["denied"] - len(simulated)
     out = [f"### IAM guardrails enforced by AWS ({rel(path)})", "",
            f"- **{sm['denied']}/{sm['unsafe_calls']} unsafe API calls denied** for the CI roles "
-           f"(allowed by mistake: {sm['unsafe_allowed'] or 'none'}).",
-           f"- {sm['controls_allowed']}/{sm['controls']} control calls still allowed (broken: {sm['controls_broken'] or 'none'}).",
-           "", "| Check | Role | Attempt | Expected | Got |", "|---|---|---|---|---|"]
-    for c in doc["checks"]:
-        out.append(f"| {c['id']} | {c['role']} | {c['check']} | {c['expected']} | {c['decision']} ({c['detail']}) |")
+           f"(allowed by mistake: {sm['unsafe_allowed'] or 'none'}; denied only by the account's own SCP, so not counted: "
+           f"{sm.get('not_credited') or 'none'})."]
+    if simulated:
+        out.append(f"- {live} were denied live by the CI roles' own policies or permissions boundary. "
+                   f"{len(simulated)} ({', '.join(simulated)}) were decided by the IAM policy simulator against the "
+                   "same role policies and boundary, because the live call could not show it: the service rejected the "
+                   "test target before authorizing, or the denial message names no policy.")
+    out.append(f"- {sm['controls_allowed']}/{sm['controls']} control calls still allowed (broken: {sm['controls_broken'] or 'none'}).")
+    blocked_controls = [c for c in checks if c["expected"] == "allowed" and c["decision"] == "denied"]
+    for c in blocked_controls:
+        out.append(f"- {c['id']} was denied by {'the account’s AWS Organizations SCP, not by this project' if c.get('denied_by') == 'scp' else c.get('denied_by') or 'AWS'}.")
+    out += ["", "| Check | Role | Attempt | Expected | Got | Denied by |", "|---|---|---|---|---|---|"]
+    for c in checks:
+        by = f"policy simulator: {c['simulated']}" if c.get("simulated") else (c.get("denied_by") or "-")
+        out.append(f"| {c['id']} | {c['role']} | {c['check']} | {c['expected']} | {c['decision']} ({c['detail']}) | {by} |")
     return out + [""]
 
 

@@ -1,0 +1,133 @@
+{
+  "cycles": [
+    {
+      "access_s": 2.007982015609741,
+      "converge_s": 259.5403792858124,
+      "cycle": 1,
+      "gitops_s": 64.41460824012756,
+      "infra_s": 650.9170336723328,
+      "platform_ready_s": 976.9,
+      "slowest_destroys_s": {
+        "module.gitops.helm_release.argocd": 9,
+        "module.gitops.helm_release.root": 1,
+        "module.platform.module.cluster.aws_eks_cluster.this": 189,
+        "module.platform.module.node_groups[\"default\"].aws_eks_node_group.this": 496,
+        "module.platform.module.vpc.aws_nat_gateway.this[0]": 60,
+        "module.platform.module.vpc.aws_route.private_nat[0]": 1,
+        "module.platform.module.vpc.aws_route.public_internet": 1,
+        "module.platform.module.workload_addons.aws_eks_addon.this[\"coredns\"]": 2
+      },
+      "slowest_resources_s": {
+        "module.gitops.helm_release.argocd": 57,
+        "module.platform.module.cluster.aws_eks_cluster.this": 488,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"eks-pod-identity-agent\"]": 8,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"kube-proxy\"]": 8,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"vpc-cni\"]": 8,
+        "module.platform.module.node_groups[\"default\"].aws_eks_node_group.this": 119,
+        "module.platform.module.vpc.aws_nat_gateway.this[0]": 105,
+        "module.platform.module.workload_addons.aws_eks_addon.this[\"coredns\"]": 15
+      },
+      "teardown_s": 717.2635493278503
+    },
+    {
+      "access_s": 1.9596669673919678,
+      "converge_s": 102.54348134994507,
+      "cycle": 2,
+      "gitops_s": 56.58531832695007,
+      "infra_s": 663.902578830719,
+      "platform_ready_s": 825.0,
+      "slowest_destroys_s": {
+        "module.gitops.helm_release.argocd": 11,
+        "module.platform.module.cluster.aws_eks_cluster.this": 157,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"eks-pod-identity-agent\"]": 2,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"kube-proxy\"]": 2,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"vpc-cni\"]": 2,
+        "module.platform.module.node_groups[\"default\"].aws_eks_node_group.this": 496,
+        "module.platform.module.vpc.aws_nat_gateway.this[0]": 71,
+        "module.platform.module.workload_addons.aws_eks_addon.this[\"coredns\"]": 3
+      },
+      "slowest_resources_s": {
+        "module.gitops.helm_release.argocd": 48,
+        "module.platform.module.cluster.aws_eks_cluster.this": 508,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"eks-pod-identity-agent\"]": 8,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"kube-proxy\"]": 8,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"vpc-cni\"]": 8,
+        "module.platform.module.node_groups[\"default\"].aws_eks_node_group.this": 108,
+        "module.platform.module.vpc.aws_nat_gateway.this[0]": 115,
+        "module.platform.module.workload_addons.aws_eks_addon.this[\"coredns\"]": 15
+      },
+      "teardown_s": 687.8842749595642
+    },
+    {
+      "access_s": 1.8969380855560303,
+      "converge_s": 268.75279092788696,
+      "cycle": 3,
+      "gitops_s": 58.13927412033081,
+      "infra_s": 599.6060998439789,
+      "platform_ready_s": 928.4,
+      "slowest_resources_s": {
+        "module.gitops.helm_release.argocd": 50,
+        "module.platform.module.cluster.aws_eks_cluster.this": 476,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"eks-pod-identity-agent\"]": 7,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"kube-proxy\"]": 8,
+        "module.platform.module.cluster.module.core_addons.aws_eks_addon.this[\"vpc-cni\"]": 7,
+        "module.platform.module.node_groups[\"default\"].aws_eks_node_group.this": 77,
+        "module.platform.module.vpc.aws_nat_gateway.this[0]": 94,
+        "module.platform.module.workload_addons.aws_eks_addon.this[\"coredns\"]": 14
+      }
+    }
+  ],
+  "summary": {
+    "access_seconds": {
+      "max": 2.01,
+      "mean": 1.95,
+      "min": 1.9,
+      "n": 3,
+      "p50": 1.96,
+      "p95": 2.01
+    },
+    "converge_seconds": {
+      "max": 268.75,
+      "mean": 210.28,
+      "min": 102.54,
+      "n": 3,
+      "p50": 259.54,
+      "p95": 268.75
+    },
+    "cycles": 3,
+    "env": "dev",
+    "gitops_seconds": {
+      "max": 64.41,
+      "mean": 59.71,
+      "min": 56.59,
+      "n": 3,
+      "p50": 58.14,
+      "p95": 64.41
+    },
+    "infra_seconds": {
+      "max": 663.9,
+      "mean": 638.14,
+      "min": 599.61,
+      "n": 3,
+      "p50": 650.92,
+      "p95": 663.9
+    },
+    "method": "terraform modules + gitops",
+    "platform_ready_minutes": {
+      "max": 16.28,
+      "mean": 15.17,
+      "min": 13.75,
+      "n": 3,
+      "p50": 15.47,
+      "p95": 16.28
+    },
+    "teardown_minutes": {
+      "max": 11.95,
+      "mean": 11.71,
+      "min": 11.46,
+      "n": 2,
+      "p50": 11.71,
+      "p95": 11.95
+    }
+  }
+}

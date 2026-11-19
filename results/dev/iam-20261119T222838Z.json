@@ -1,0 +1,386 @@
+{
+  "checks": [
+    {
+      "check": "create an IAM user",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I01",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "create an access key for the admin user",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I02",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "create a workload role without the boundary",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I03",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "create a role outside the /eks-gitops/ path",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I04",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "CONTROL: create a workload role with the boundary",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "ok",
+      "expected": "allowed",
+      "id": "C01",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "attach AdministratorAccess to a workload role",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I05",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "remove a workload role's permissions boundary",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I06",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "rewrite the permissions boundary policy",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I07",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "widen its own trust policy",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I08",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "add an inline policy to itself",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I09",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "delete the state bucket",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I10",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "suspend state bucket versioning",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I11",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "remove the state bucket policy",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I12",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "purge a state file version",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I13",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "launch a 96-vCPU instance (dry run)",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "UnauthorizedOperation",
+      "expected": "denied",
+      "id": "I14",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "CONTROL: launch an approved instance type (dry run)",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "dry-run would succeed",
+      "expected": "allowed",
+      "id": "C02",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "work in an unapproved region (eu-west-1)",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "UnauthorizedOperation",
+      "expected": "denied",
+      "id": "I15",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "use a service outside the platform (RDS)",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I16",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "use a service outside the platform (Lambda)",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDeniedException",
+      "expected": "denied",
+      "id": "I17",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "stop CloudTrail logging",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDeniedException",
+      "expected": "denied",
+      "id": "I18",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "delete a GuardDuty detector",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDeniedException",
+      "expected": "denied",
+      "id": "I19",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "schedule a KMS key for deletion",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "reached service: NotFoundException",
+      "expected": "denied",
+      "id": "I20",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "FAIL"
+    },
+    {
+      "check": "read AWS Organizations",
+      "decision": "denied",
+      "denied_by": "unattributed",
+      "detail": "AccessDeniedException",
+      "expected": "denied",
+      "id": "I21",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "delete a VPC tagged Protection=protected",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "UnauthorizedOperation",
+      "expected": "denied",
+      "id": "I22",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "make a snapshot public",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "reached service: InvalidSnapshotID.Malformed",
+      "expected": "denied",
+      "id": "I23",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "FAIL"
+    },
+    {
+      "check": "turn off account-wide S3 public access block",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I24",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "CONTROL: describe VPCs in the allowed region",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "ok",
+      "expected": "allowed",
+      "id": "C03",
+      "role": "apply",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "create a VPC from a pull request",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "UnauthorizedOperation",
+      "expected": "denied",
+      "id": "I25",
+      "role": "plan",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "overwrite a state file from a pull request",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I26",
+      "role": "plan",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "create an IAM role from a pull request",
+      "decision": "denied",
+      "denied_by": "role-policy",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I27",
+      "role": "plan",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "create an IAM user from a pull request",
+      "decision": "denied",
+      "denied_by": "boundary",
+      "detail": "AccessDenied",
+      "expected": "denied",
+      "id": "I28",
+      "role": "plan",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "CONTROL: take the state lock",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "ok",
+      "expected": "allowed",
+      "id": "C04",
+      "role": "plan",
+      "simulated": "",
+      "verdict": "PASS"
+    },
+    {
+      "check": "CONTROL: read the state file",
+      "decision": "allowed",
+      "denied_by": "",
+      "detail": "ok",
+      "expected": "allowed",
+      "id": "C05",
+      "role": "plan",
+      "simulated": "",
+      "verdict": "PASS"
+    }
+  ],
+  "summary": {
+    "controls": 5,
+    "controls_allowed": 5,
+    "controls_broken": [],
+    "denied": 26,
+    "denied_by_layer": {
+      "boundary": 9,
+      "role-policy": 16,
+      "unattributed": 1
+    },
+    "denied_only_by_account_scp": [],
+    "env": "dev",
+    "started": "2026-11-19T22:28:38.844017+00:00",
+    "unsafe_allowed": [
+      "I20",
+      "I23"
+    ],
+    "unsafe_calls": 28
+  }
+}
