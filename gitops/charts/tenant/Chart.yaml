@@ -1,0 +1,5 @@
+apiVersion: v2
+name: tenant
+description: A team namespace with quota, limits, RBAC, default-deny networking and a sample service.
+type: application
+version: 0.1.0

@@ -1,0 +1,8 @@
+.git/
+.terraform/
+*.tfstate
+*.tfstate.*
+.work/
+results/
+__pycache__/
+.terraform.lock.hcl

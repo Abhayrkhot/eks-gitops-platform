@@ -1,0 +1,17 @@
+{
+  "guardrails": {
+    "allowed_regions": ["us-east-1"],
+    "allowed_instance_types": ["t3.small", "t3.medium", "m7i-flex.large", "c7i-flex.large"],
+    "max_node_group_size": 6,
+    "supported_kubernetes_versions": ["1.33", "1.34", "1.35"],
+    "public_ports": [80, 443],
+    "admin_policy_suffixes": ["/AdministratorAccess", "/IAMFullAccess", "/PowerUserAccess"],
+    "protected_types": [
+      "aws_eks_cluster", "aws_vpc", "aws_subnet", "aws_nat_gateway",
+      "aws_s3_bucket", "aws_iam_openid_connect_provider", "aws_iam_policy"
+    ],
+    "critical_addons": ["vpc-cni", "kube-proxy", "coredns"],
+    "required_tags": ["Project", "Environment", "ManagedBy", "Owner"],
+    "cluster_admin_principal_patterns": [":role/eks-gitops-ci/", ":role/platform-admins/"]
+  }
+}

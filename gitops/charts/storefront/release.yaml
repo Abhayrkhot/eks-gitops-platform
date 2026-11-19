@@ -1,0 +1,7 @@
+# Current release. CI and the canary experiments change only this file.
+release:
+  id: r0-baseline
+  tag: "6.17.0"
+  message: storefront r0
+  args: []
+  command: []

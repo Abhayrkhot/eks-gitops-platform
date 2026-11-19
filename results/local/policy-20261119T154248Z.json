@@ -1,0 +1,1177 @@
+{
+  "fixtures": [
+    {
+      "expect": [],
+      "found": [],
+      "id": "B-infra",
+      "messages": [],
+      "name": "baseline plan (infra, no change)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 7.9,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "B-bootstrap",
+      "messages": [],
+      "name": "baseline plan (bootstrap, no change)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 0,
+        "update": 0
+      },
+      "seconds": 9.5,
+      "stack": "bootstrap",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [
+        "TF001"
+      ],
+      "found": [
+        "TF001"
+      ],
+      "id": "U01",
+      "messages": [
+        "TF001 aws_security_group.debug: ingress from 0.0.0.0/0 on ports 22-22 (tcp); only [80, 443] may be public"
+      ],
+      "name": "SSH open to the internet on a debug security group",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF001"
+      ],
+      "found": [
+        "TF001"
+      ],
+      "id": "U02",
+      "messages": [
+        "TF001 aws_vpc_security_group_ingress_rule.everything: ingress from 0.0.0.0/0 on ports null-null; only [80, 443] may be public"
+      ],
+      "name": "All ports open to the internet (protocol -1)",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF001"
+      ],
+      "found": [
+        "TF001"
+      ],
+      "id": "U03",
+      "messages": [
+        "TF001 aws_security_group_rule.api6: ingress from ::/0 on ports 6443-6443; only [80, 443] may be public"
+      ],
+      "name": "Kubernetes API port 6443 open to all IPv6",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF002"
+      ],
+      "found": [
+        "TF002"
+      ],
+      "id": "U04",
+      "messages": [
+        "TF002 module.platform.module.cluster.aws_eks_cluster.this: public API endpoint open to the internet; restrict public_access_cidrs"
+      ],
+      "name": "EKS public endpoint opened to 0.0.0.0/0",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF002"
+      ],
+      "found": [
+        "TF002"
+      ],
+      "id": "U05",
+      "messages": [
+        "TF002 module.platform.module.cluster.aws_eks_cluster.this: public API endpoint open to the internet; restrict public_access_cidrs"
+      ],
+      "name": "EKS public endpoint with no CIDR list (AWS default is the whole internet)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF004"
+      ],
+      "found": [
+        "TF004"
+      ],
+      "id": "U06",
+      "messages": [
+        "TF004 module.platform.module.cluster.aws_eks_cluster.this: control-plane audit logging must stay enabled"
+      ],
+      "name": "Control-plane audit logging turned off",
+      "plan": {
+        "create": 0,
+        "delete": 1,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.7,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF005"
+      ],
+      "found": [
+        "TF005"
+      ],
+      "id": "U07",
+      "messages": [
+        "TF005 module.platform.module.cluster.aws_eks_cluster.this: upgrade_policy.support_type must be STANDARD (extended support costs 6x)"
+      ],
+      "name": "Cluster moved to EXTENDED support",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 12.4,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF006"
+      ],
+      "found": [
+        "TF006"
+      ],
+      "id": "U08",
+      "messages": [
+        "TF006 module.platform.module.cluster.aws_eks_cluster.this: Kubernetes downgrade 1.34 -> 1.33 is not possible"
+      ],
+      "name": "Kubernetes downgrade 1.34 -> 1.33",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.5,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF006"
+      ],
+      "found": [
+        "TF006"
+      ],
+      "id": "U09",
+      "messages": [
+        "TF006 module.platform.module.cluster.aws_eks_cluster.this: Kubernetes 1.36 is not a supported version [\"1.33\", \"1.34\", \"1.35\"]",
+        "TF006 module.platform.module.cluster.aws_eks_cluster.this: upgrade 1.34 -> 1.36 skips a minor version"
+      ],
+      "name": "Kubernetes upgrade that skips a minor (1.34 -> 1.36)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 12.2,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF007"
+      ],
+      "found": [
+        "TF007"
+      ],
+      "id": "U10",
+      "messages": [
+        "TF007 module.platform.module.node_groups[\"default\"].aws_eks_node_group.this: instance type p5.48xlarge is not in the allowlist [\"t3.small\", \"t3.medium\", \"m7i-flex.large\", \"c7i-flex.large\"]"
+      ],
+      "name": "GPU instance type in the node group",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 12.3,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF008"
+      ],
+      "found": [
+        "TF008"
+      ],
+      "id": "U11",
+      "messages": [
+        "TF008 module.platform.module.node_groups[\"default\"].aws_eks_node_group.this: max_size 50 exceeds the cap of 6 nodes"
+      ],
+      "name": "Node group allowed to scale to 50 nodes",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 12.2,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF016"
+      ],
+      "found": [
+        "TF016"
+      ],
+      "id": "U12",
+      "messages": [
+        "TF016 module.platform.module.vpc.aws_nat_gateway.this[0]: plan would replace a protected aws_nat_gateway; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1a\"]: plan would replace a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1b\"]: plan would replace a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1c\"]: plan would replace a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1a\"]: plan would replace a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1b\"]: plan would replace a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1c\"]: plan would replace a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_vpc.this: plan would replace a protected aws_vpc; this needs a reviewed break-glass change"
+      ],
+      "name": "VPC CIDR change (replaces the VPC and every subnet)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 23,
+        "update": 2
+      },
+      "seconds": 12.2,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF016"
+      ],
+      "found": [
+        "TF016"
+      ],
+      "id": "U13",
+      "messages": [
+        "TF016 module.platform.module.cluster.aws_eks_cluster.this: plan would replace a protected aws_eks_cluster; this needs a reviewed break-glass change"
+      ],
+      "name": "Cluster rename (replaces the EKS cluster)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 10,
+        "update": 13
+      },
+      "seconds": 12.7,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF016"
+      ],
+      "found": [
+        "TF016"
+      ],
+      "id": "U14",
+      "messages": [
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1c\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1c\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change"
+      ],
+      "name": "Remove an availability zone (deletes subnets in use)",
+      "plan": {
+        "create": 0,
+        "delete": 4,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 13.0,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF016"
+      ],
+      "found": [
+        "TF016"
+      ],
+      "id": "U15",
+      "messages": [
+        "TF016 module.platform.module.vpc.aws_nat_gateway.this[0]: plan would delete a protected aws_nat_gateway; this needs a reviewed break-glass change"
+      ],
+      "name": "Remove the NAT gateway (private nodes lose egress)",
+      "plan": {
+        "create": 0,
+        "delete": 3,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 13.5,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF003"
+      ],
+      "found": [
+        "TF003"
+      ],
+      "id": "U16",
+      "messages": [
+        "TF003 module.platform.module.cluster.aws_eks_cluster.this: authentication_mode must be API (no aws-auth ConfigMap)"
+      ],
+      "name": "Switch EKS auth back to the aws-auth ConfigMap",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 13.4,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF022"
+      ],
+      "found": [
+        "TF022"
+      ],
+      "id": "U18",
+      "messages": [
+        "TF022 aws_eks_access_policy_association.contractor: cluster-admin for arn:aws:iam::123456789012:role/contractor; only [\":role/eks-gitops-ci/\", \":role/platform-admins/\"] roles may be cluster admins"
+      ],
+      "name": "Grant cluster-admin to an outside contractor role",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 13.5,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF019"
+      ],
+      "found": [
+        "TF019"
+      ],
+      "id": "U19",
+      "messages": [
+        "TF019 module.platform.module.node_groups[\"default\"].aws_launch_template.this: instance metadata must require IMDSv2 tokens"
+      ],
+      "name": "Launch template that allows IMDSv1",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 1
+      },
+      "seconds": 13.4,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF020"
+      ],
+      "found": [
+        "TF020"
+      ],
+      "id": "U20",
+      "messages": [
+        "TF020 module.platform.module.node_groups[\"default\"].aws_launch_template.this: EBS volume /dev/xvda is not encrypted"
+      ],
+      "name": "Unencrypted node volumes",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 1
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF009"
+      ],
+      "found": [
+        "TF009"
+      ],
+      "id": "U21",
+      "messages": [
+        "TF009 aws_s3_bucket_acl.assets: public bucket ACL public-read"
+      ],
+      "name": "Public-read bucket ACL",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.5,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF009"
+      ],
+      "found": [
+        "TF009"
+      ],
+      "id": "U22",
+      "messages": [
+        "TF009 aws_s3_bucket_public_access_block.exports: block_public_acls must be true",
+        "TF009 aws_s3_bucket_public_access_block.exports: block_public_policy must be true",
+        "TF009 aws_s3_bucket_public_access_block.exports: ignore_public_acls must be true",
+        "TF009 aws_s3_bucket_public_access_block.exports: restrict_public_buckets must be true"
+      ],
+      "name": "Bucket with public access block turned off",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.8,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF009"
+      ],
+      "found": [
+        "TF009"
+      ],
+      "id": "U23",
+      "messages": [
+        "TF009 aws_s3_bucket_policy.share: bucket policy allows anonymous access"
+      ],
+      "name": "Bucket policy granting anonymous read",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.7,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF010"
+      ],
+      "found": [
+        "TF010"
+      ],
+      "id": "U24",
+      "messages": [
+        "TF010 module.state.aws_s3_bucket_versioning.state: state bucket versioning must stay Enabled"
+      ],
+      "name": "Suspend versioning on the state bucket",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 0,
+        "update": 1
+      },
+      "seconds": 13.5,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF010"
+      ],
+      "found": [
+        "TF010"
+      ],
+      "id": "U25",
+      "messages": [
+        "TF010 module.state.aws_s3_bucket_public_access_block.state[0]: removing a state-bucket protection (aws_s3_bucket_public_access_block)"
+      ],
+      "name": "Remove the state bucket's public access block",
+      "plan": {
+        "create": 0,
+        "delete": 1,
+        "replace": 0,
+        "update": 0
+      },
+      "seconds": 13.5,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF010"
+      ],
+      "found": [
+        "TF010",
+        "TF016"
+      ],
+      "id": "U26",
+      "messages": [
+        "TF010 module.state.aws_s3_bucket.state: force_destroy on a state bucket lets one destroy delete every environment's state",
+        "TF010 module.state.aws_s3_bucket_public_access_block.state: removing a state-bucket protection (aws_s3_bucket_public_access_block)",
+        "TF010 module.state.aws_s3_bucket_server_side_encryption_configuration.state: removing a state-bucket protection (aws_s3_bucket_server_side_encryption_configuration)",
+        "TF010 module.state.aws_s3_bucket_versioning.state: removing a state-bucket protection (aws_s3_bucket_versioning)",
+        "TF016 module.state.aws_s3_bucket.state: plan would replace a protected aws_s3_bucket; this needs a reviewed break-glass change"
+      ],
+      "name": "force_destroy on a shared state bucket",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 6,
+        "update": 3
+      },
+      "seconds": 13.0,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF011"
+      ],
+      "found": [
+        "TF011"
+      ],
+      "id": "U27",
+      "messages": [
+        "TF011 aws_iam_policy.ops: grants * on every resource"
+      ],
+      "name": "Customer-managed policy granting *:* on *",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF011"
+      ],
+      "found": [
+        "TF011"
+      ],
+      "id": "U28",
+      "messages": [
+        "TF011 aws_iam_role_policy.node_iam: grants iam:* on every resource"
+      ],
+      "name": "Inline iam:* on the node role",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.8,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF012"
+      ],
+      "found": [
+        "TF012"
+      ],
+      "id": "U29",
+      "messages": [
+        "TF012 aws_iam_role_policy_attachment.node_admin: attaches arn:aws:iam::aws:policy/AdministratorAccess"
+      ],
+      "name": "AdministratorAccess attached to the node role",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.7,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF012"
+      ],
+      "found": [
+        "TF012"
+      ],
+      "id": "U30",
+      "messages": [
+        "TF012 aws_iam_role_policy_attachment.apply_admin: attaches arn:aws:iam::aws:policy/AdministratorAccess"
+      ],
+      "name": "AdministratorAccess attached to the CI apply role",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 0,
+        "update": 0
+      },
+      "seconds": 13.0,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF013"
+      ],
+      "found": [
+        "TF013"
+      ],
+      "id": "U31",
+      "messages": [
+        "TF013 aws_iam_access_key.deploy: long-lived IAM users/keys are not allowed; use roles and OIDC",
+        "TF013 aws_iam_user.deploy: long-lived IAM users/keys are not allowed; use roles and OIDC"
+      ],
+      "name": "IAM user with a long-lived access key",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.6,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF014"
+      ],
+      "found": [
+        "TF014"
+      ],
+      "id": "U32",
+      "messages": [
+        "TF014 aws_iam_role.worker: role has no permissions boundary"
+      ],
+      "name": "New role without the permissions boundary",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.9,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF015"
+      ],
+      "found": [
+        "TF015"
+      ],
+      "id": "U33",
+      "messages": [
+        "TF015 aws_iam_role.shared: trust policy lets any AWS principal assume the role"
+      ],
+      "name": "Role any AWS account can assume",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.9,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF015"
+      ],
+      "found": [
+        "TF015"
+      ],
+      "id": "U34",
+      "messages": [
+        "TF015 module.ci_iam.aws_iam_role.plan: GitHub OIDC trust must pin the sub claim to this repository"
+      ],
+      "name": "GitHub OIDC trust for any repository",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 0,
+        "update": 1
+      },
+      "seconds": 13.4,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF024"
+      ],
+      "found": [
+        "TF024"
+      ],
+      "id": "U35",
+      "messages": [
+        "TF024 module.ci_iam.aws_iam_policy.boundary: permissions boundary lost deny statements [\"DenyRolesWithoutBoundary\"]"
+      ],
+      "name": "Remove a deny statement from the permissions boundary",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 0,
+        "update": 1
+      },
+      "seconds": 13.2,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF016"
+      ],
+      "found": [
+        "TF016"
+      ],
+      "id": "U36",
+      "messages": [
+        "TF016 module.ci_iam.aws_iam_openid_connect_provider.github[0]: plan would delete a protected aws_iam_openid_connect_provider; this needs a reviewed break-glass change"
+      ],
+      "name": "Delete the GitHub OIDC provider",
+      "plan": {
+        "create": 0,
+        "delete": 1,
+        "replace": 0,
+        "update": 0
+      },
+      "seconds": 13.5,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF017"
+      ],
+      "found": [
+        "TF017"
+      ],
+      "id": "U37",
+      "messages": [
+        "TF017 module.platform.module.cluster.aws_cloudwatch_log_group.cluster[0]: missing required tag Owner",
+        "TF017 module.platform.module.cluster.aws_eks_cluster.this: missing required tag Owner",
+        "TF017 module.platform.module.cluster.aws_iam_role.cluster: missing required tag Owner",
+        "TF017 module.platform.module.node_groups[\"default\"].aws_eks_node_group.this: missing required tag Owner",
+        "TF017 module.platform.module.node_groups[\"default\"].aws_iam_role.node: missing required tag Owner",
+        "TF017 module.platform.module.node_groups[\"default\"].aws_launch_template.this: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_default_security_group.this: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_eip.nat[0]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_internet_gateway.this: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_nat_gateway.this[0]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_route_table.private: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_route_table.public: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_subnet.private[\"us-east-1a\"]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_subnet.private[\"us-east-1b\"]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_subnet.private[\"us-east-1c\"]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_subnet.public[\"us-east-1a\"]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_subnet.public[\"us-east-1b\"]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_subnet.public[\"us-east-1c\"]: missing required tag Owner",
+        "TF017 module.platform.module.vpc.aws_vpc.this: missing required tag Owner"
+      ],
+      "name": "Drop the Owner tag from the default tags",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 18
+      },
+      "seconds": 11.3,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF018"
+      ],
+      "found": [
+        "TF016",
+        "TF018"
+      ],
+      "id": "U38",
+      "messages": [
+        "TF016 module.platform.module.vpc.aws_nat_gateway.this[0]: plan would replace a protected aws_nat_gateway; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1a\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1b\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.private[\"us-east-1c\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1a\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1b\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF016 module.platform.module.vpc.aws_subnet.public[\"us-east-1c\"]: plan would delete a protected aws_subnet; this needs a reviewed break-glass change",
+        "TF018 plan targets region eu-west-1; allowed: [\"us-east-1\"]"
+      ],
+      "name": "Deploy to an unapproved region",
+      "plan": {
+        "create": 12,
+        "delete": 12,
+        "replace": 5,
+        "update": 2
+      },
+      "seconds": 11.2,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF023"
+      ],
+      "found": [
+        "TF023"
+      ],
+      "id": "U39",
+      "messages": [
+        "TF023 module.platform.module.cluster.aws_cloudwatch_log_group.cluster[0]: log group never expires; set retention_in_days"
+      ],
+      "name": "Control-plane log group that never expires",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.3,
+      "stack": "infra",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [
+        "TF024"
+      ],
+      "found": [
+        "TF024"
+      ],
+      "id": "U40",
+      "messages": [
+        "TF024 module.ci_iam.aws_iam_policy.boundary: permissions boundary lost deny statements [\"DenyStateBucketTampering\"]"
+      ],
+      "name": "Weaken the boundary's state-bucket protection",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 0,
+        "update": 1
+      },
+      "seconds": 13.0,
+      "stack": "bootstrap",
+      "verdict": "BLOCKED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S01",
+      "messages": [],
+      "name": "Scale the node group from 2 to 3",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.5,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S02",
+      "messages": [],
+      "name": "Add a node label",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.4,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S03",
+      "messages": [],
+      "name": "Add a second node group of an approved type",
+      "plan": {
+        "create": 6,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 11.4,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S04",
+      "messages": [],
+      "name": "Upgrade Kubernetes one minor version (1.34 -> 1.35)",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.7,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S05",
+      "messages": [],
+      "name": "Add a second operator CIDR to the API allowlist",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 11.8,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S06",
+      "messages": [],
+      "name": "Public HTTPS-only security group for a load balancer",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 12.0,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S07",
+      "messages": [],
+      "name": "Cluster-admin for the platform-admins role",
+      "plan": {
+        "create": 1,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 12.6,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S08",
+      "messages": [],
+      "name": "Longer control-plane log retention",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 1
+      },
+      "seconds": 12.6,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S09",
+      "messages": [],
+      "name": "New least-privilege role with the boundary",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 12.4,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S10",
+      "messages": [],
+      "name": "Add a CostCenter tag everywhere",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 4,
+        "update": 18
+      },
+      "seconds": 11.4,
+      "stack": "infra",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S11",
+      "messages": [],
+      "name": "Allow another instance type in the CI boundary",
+      "plan": {
+        "create": 0,
+        "delete": 0,
+        "replace": 0,
+        "update": 1
+      },
+      "seconds": 12.7,
+      "stack": "bootstrap",
+      "verdict": "PASSED"
+    },
+    {
+      "expect": [],
+      "found": [],
+      "id": "S12",
+      "messages": [],
+      "name": "Private bucket with every protection on",
+      "plan": {
+        "create": 2,
+        "delete": 0,
+        "replace": 1,
+        "update": 0
+      },
+      "seconds": 10.8,
+      "stack": "infra",
+      "verdict": "PASSED"
+    }
+  ],
+  "summary": {
+    "blocked": 39,
+    "env": "local",
+    "errors": [],
+    "false_positives": [],
+    "missed": [],
+    "passed": 14,
+    "rules_exercised": [
+      "TF001",
+      "TF002",
+      "TF003",
+      "TF004",
+      "TF005",
+      "TF006",
+      "TF007",
+      "TF008",
+      "TF009",
+      "TF010",
+      "TF011",
+      "TF012",
+      "TF013",
+      "TF014",
+      "TF015",
+      "TF016",
+      "TF017",
+      "TF018",
+      "TF019",
+      "TF020",
+      "TF022",
+      "TF023",
+      "TF024"
+    ],
+    "safe_changes": 14,
+    "seconds_per_fixture": {
+      "max": 13.5,
+      "mean": 12.05,
+      "min": 7.9,
+      "n": 53,
+      "p50": 11.8,
+      "p95": 13.5
+    },
+    "skipped_needs_aws": [
+      "U17"
+    ],
+    "started": "2026-11-19T15:42:48.560841+00:00",
+    "unsafe_changes": 39
+  }
+}

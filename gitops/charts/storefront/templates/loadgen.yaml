@@ -1,0 +1,45 @@
+{{- if .Values.loadgen.enabled }}
+# Steady client traffic against the replica-weighted Service, one log line per
+# request. The canary experiment reads these logs (with kubelet timestamps)
+# to measure how many client requests failed while a bad release was live.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  labels:
+    app.kubernetes.io/name: loadgen
+    app.kubernetes.io/part-of: eks-gitops-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loadgen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: loadgen
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 1
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: curl
+          image: {{ .Values.analysis.image }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 http://storefront:9898/)
+                echo "$code"
+                sleep {{ .Values.loadgen.intervalSeconds }}
+              done
+          resources:
+            requests: { cpu: 20m, memory: 16Mi }
+            limits: { memory: 64Mi }
+          securityContext:
+            {{- include "storefront.containerSecurity" . | nindent 12 }}
+{{- end }}

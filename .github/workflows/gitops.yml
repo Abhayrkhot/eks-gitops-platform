@@ -1,0 +1,80 @@
+name: gitops
+
+# Manifests are linted and schema-checked on every change, then the whole
+# platform is brought up end to end on kind: Terraform (against emulated AWS)
+# installs Argo CD, Argo CD syncs every app from an in-cluster Git server, and
+# short drift and failed-release experiments run against it.
+
+on:
+  pull_request:
+    paths: ["gitops/**", "lab/**", "experiments/**", "terraform/**", ".github/workflows/gitops.yml"]
+  push:
+    branches: [main]
+    paths: ["gitops/**", "lab/**", "experiments/**", "terraform/**", ".github/workflows/gitops.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitops-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install toolchain
+        run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: helm lint
+        run: |
+          helm lint gitops/bootstrap --set environment=dev
+          helm lint gitops/charts/storefront -f gitops/charts/storefront/release.yaml
+          helm lint gitops/charts/tenant --set team=ci
+      - name: kubeconform (core + Argo CRD schemas)
+        run: |
+          crds='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+          for env in local dev; do
+            helm template root gitops/bootstrap --set environment=$env \
+              | kubeconform -strict -summary -schema-location default -schema-location "$crds"
+          done
+          helm template sf gitops/charts/storefront -f gitops/charts/storefront/release.yaml \
+            | kubeconform -strict -summary -schema-location default -schema-location "$crds"
+          helm template t gitops/charts/tenant --set team=ci | kubeconform -strict -summary
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 45
+    env:
+      KUBECONFIG: /home/runner/.kube/egp-gitops.yaml
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Install toolchain
+        run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Platform up (moto + kind + Argo CD + every app)
+        run: |
+          mkdir -p ~/.kube
+          git config --global user.name ci && git config --global user.email ci@example.invalid
+          make local-up
+      - name: Drift repair (all managed resources, 3 rounds)
+        run: uv run --with-requirements experiments/requirements.txt experiments/drift/run.py --env ci --rounds 3
+      - name: Failed releases (one per fault mode) and good releases
+        run: uv run --with-requirements experiments/requirements.txt experiments/rollouts/run.py --env ci --per-mode 1 --good 2
+      - name: Fail on any escaped release or unrestored drift
+        run: |
+          jq -e '.summary.escaped == 0 and .summary.recovered == .summary.bad_releases and .summary.false_aborts == 0' results/ci/rollouts-*.json
+          jq -e '.summary.resources_restored_total == .summary.resources_drifted_total' results/ci/drift-*.json
+      - name: Diagnostics
+        if: failure()
+        run: |
+          kubectl -n argocd get applications.argoproj.io || true
+          kubectl get pods -A || true
+          kubectl -n storefront describe rollout storefront | tail -40 || true
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-results
+          path: results/ci/

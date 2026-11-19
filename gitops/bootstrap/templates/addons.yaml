@@ -1,0 +1,68 @@
+{{- if .Values.apps.argoRollouts.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-rollouts
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    # Rollout CRDs must exist before the storefront app syncs.
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  project: platform
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-rollouts
+    targetRevision: {{ .Values.apps.argoRollouts.chartVersion }}
+    helm:
+      valuesObject:
+        installCRDs: true
+        controller:
+          replicas: 1
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 256Mi }
+        dashboard:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-rollouts
+  syncPolicy:
+    {{- include "root.syncPolicy" . | nindent 4 }}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+{{- end }}
+{{- if .Values.apps.metricsServer.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metrics-server
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  project: platform
+  source:
+    repoURL: https://kubernetes-sigs.github.io/metrics-server/
+    chart: metrics-server
+    targetRevision: {{ .Values.apps.metricsServer.chartVersion }}
+    helm:
+      valuesObject:
+        resources:
+          requests: { cpu: 50m, memory: 64Mi }
+        {{- if eq .Values.environment "local" }}
+        # kind kubelets serve self-signed certificates.
+        args:
+          - --kubelet-insecure-tls
+        {{- end }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    {{- include "root.syncPolicy" . | nindent 4 }}
+{{- end }}

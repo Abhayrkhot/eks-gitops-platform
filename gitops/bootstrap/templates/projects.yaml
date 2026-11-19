@@ -1,0 +1,74 @@
+# Projects limit what each group of apps may deploy and where.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  description: Cluster add-ons owned by the platform team.
+  sourceRepos:
+    - {{ .Values.repoURL }}
+    - https://argoproj.github.io/argo-helm
+    - https://kubernetes-sigs.github.io/metrics-server/
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: argo-rollouts
+    - server: https://kubernetes.default.svc
+      namespace: kube-system
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: workloads
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  description: Team workloads. Namespaced resources only, plus their own Namespace.
+  sourceRepos:
+    - {{ .Values.repoURL }}
+    {{- with .Values.apps.storefront.repoURL }}
+    - {{ . }}
+    {{- end }}
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: storefront
+    - server: https://kubernetes.default.svc
+      namespace: team-*
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceBlacklist:
+    - group: ""
+      kind: ResourceQuota
+      # quotas are platform-owned; tenants get theirs from the tenant chart,
+      # which runs in the platform-tenants project below.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform-tenants
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  description: Tenant namespaces with quotas, limits, RBAC and default-deny networking.
+  sourceRepos:
+    - {{ .Values.repoURL }}
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: team-*
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace

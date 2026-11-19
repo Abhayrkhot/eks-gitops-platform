@@ -1,0 +1,67 @@
+# argo-cd chart values shared by every environment (chart 10.18.x, Argo CD 3.6).
+global:
+  domain: argocd.platform.internal
+
+configs:
+  params:
+    # TLS terminates at the load balancer/port-forward, not at argocd-server.
+    server.insecure: true
+    # Self-heal: first retry 1s after drift is seen, doubling to at most 10s.
+    # Upstream defaults are 2s x3 capped at 300s, which lets repeated drift
+    # on one app wait minutes; see docs/results.md for both settings measured.
+    controller.self.heal.backoff.timeout.seconds: "1"
+    controller.self.heal.backoff.factor: "2"
+    controller.self.heal.backoff.cap.seconds: "10"
+    controller.status.processors: "20"
+    controller.operation.processors: "10"
+  cm:
+    # Git polling is a fallback: pushes arrive through the webhook.
+    timeout.reconciliation: 120s
+    exec.enabled: false
+    admin.enabled: true
+    # Let parent apps wait on child Application health (sync waves in the
+    # app of apps), so CRDs exist before the workloads that use them.
+    resource.customizations.health.argoproj.io_Application: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status ~= nil then
+        if obj.status.health ~= nil then
+          hs.status = obj.status.health.status
+          if obj.status.health.message ~= nil then
+            hs.message = obj.status.health.message
+          end
+        end
+      end
+      return hs
+
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+controller:
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits: { memory: 1Gi }
+
+repoServer:
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 1Gi }
+
+server:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 512Mi }
+
+applicationSet:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 256Mi }
+
+redis:
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { memory: 256Mi }

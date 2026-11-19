@@ -1,0 +1,78 @@
+{{- if .Values.apps.storefront.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: storefront
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: workloads
+  source:
+    repoURL: {{ .Values.apps.storefront.repoURL | default .Values.repoURL }}
+    targetRevision: {{ .Values.targetRevision }}
+    path: gitops/charts/storefront
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-{{ .Values.environment }}.yaml
+        # The release under test: image, args, rollout parameters.
+        - release.yaml
+      ignoreMissingValueFiles: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: storefront
+  syncPolicy:
+    {{- include "root.syncPolicy" . | nindent 4 }}
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+{{- if .Values.apps.tenants.enabled }}
+---
+# One Application per team, generated from the list below.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: tenants
+  namespace: argocd
+  labels:
+    {{- include "root.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          {{- range .Values.apps.tenants.teams }}
+          - name: {{ .name | quote }}
+            cpu: {{ .cpu | quote }}
+            memory: {{ .memory | quote }}
+          {{- end }}
+  template:
+    metadata:
+      name: {{ `'tenant-{{.name}}'` }}
+      labels:
+        {{- include "root.labels" . | nindent 8 }}
+        platform.gitops/tenant: {{ `'{{.name}}'` }}
+    spec:
+      project: platform-tenants
+      source:
+        repoURL: {{ .Values.repoURL }}
+        targetRevision: {{ .Values.targetRevision }}
+        path: gitops/charts/tenant
+        helm:
+          valuesObject:
+            team: {{ `'{{.name}}'` }}
+            quota:
+              cpu: {{ `'{{.cpu}}'` }}
+              memory: {{ `'{{.memory}}'` }}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: {{ `'team-{{.name}}'` }}
+      syncPolicy:
+        {{- include "root.syncPolicy" . | nindent 8 }}
+{{- end }}

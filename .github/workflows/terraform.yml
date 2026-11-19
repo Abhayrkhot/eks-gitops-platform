@@ -1,0 +1,100 @@
+name: terraform
+
+# Every pull request that touches infrastructure gets:
+#   static   fmt, validate, tflint, trivy misconfiguration scan, policy unit tests
+#   gate     a real plan of every fixture PR against emulated AWS state, through
+#            the conftest guardrails (unsafe fixtures must be blocked, safe ones pass)
+#   plan     (when the repo is wired to AWS) a read-only plan of dev with the OIDC
+#            plan role, checked by the same guardrails before anyone can merge
+
+on:
+  pull_request:
+    paths: ["terraform/**", "policy/**", "experiments/policy/**", ".github/workflows/terraform.yml"]
+  push:
+    branches: [main]
+    paths: ["terraform/**", "policy/**", "experiments/policy/**", ".github/workflows/terraform.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install toolchain
+        run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff terraform
+      - name: terraform validate (every stack and module)
+        run: |
+          for d in terraform/bootstrap terraform/live/infra terraform/live/gitops terraform/modules/*; do
+            echo "::group::$d"
+            terraform -chdir="$d" init -backend=false -input=false -no-color >/dev/null
+            terraform -chdir="$d" validate -no-color
+            echo "::endgroup::"
+          done
+      - name: tflint
+        run: |
+          tflint --init
+          tflint --recursive --chdir terraform --minimum-failure-severity=warning
+      - name: trivy misconfiguration scan
+        run: trivy config --exit-code 1 --severity HIGH,CRITICAL --skip-dirs '**/.terraform' terraform
+      - name: policy unit tests
+        run: conftest verify --policy policy/terraform --data policy/data
+
+  gate:
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Install toolchain
+        run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Emulated AWS account (moto) with remote state
+        run: |
+          make local-bootstrap
+          make local-infra
+      - name: Plan every fixture PR and run the guardrails
+        run: uv run --with-requirements experiments/requirements.txt experiments/policy/run.py --env local --workers 4
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: policy-gate-results
+          path: results/local/policy-*.json
+
+  plan:
+    runs-on: ubuntu-latest
+    needs: static
+    if: vars.AWS_PLAN_ROLE_ARN != ''
+    permissions:
+      contents: read
+      id-token: write   # GitHub OIDC token -> the read-only plan role; no stored AWS keys
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install toolchain
+        run: scripts/install-tools.sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Plan dev (read-only role)
+        env:
+          STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          BOUNDARY_ARN: ${{ vars.PERMISSIONS_BOUNDARY_ARN }}
+          OPERATOR_CIDRS: ${{ vars.OPERATOR_CIDRS }}
+        run: |
+          cd terraform/live/infra
+          terraform init -input=false -no-color \
+            -backend-config="bucket=$STATE_BUCKET" -backend-config="region=us-east-1" \
+            -backend-config="use_lockfile=true" -backend-config="key=dev/infra.tfstate"
+          terraform plan -input=false -no-color -lock=false -out=plan.tfplan -var-file=env/dev.tfvars \
+            -var "permissions_boundary_arn=$BOUNDARY_ARN" -var "public_access_cidrs=$OPERATOR_CIDRS"
+          terraform show -json plan.tfplan > plan.json
+      - name: Guardrails
+        run: conftest test terraform/live/infra/plan.json --policy policy/terraform --data policy/data

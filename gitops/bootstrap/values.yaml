@@ -1,0 +1,48 @@
+environment: dev
+clusterName: ""
+repoURL: https://github.com/Abhayrkhot/eks-gitops-platform.git
+targetRevision: main
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  retry:
+    limit: 10
+    backoff:
+      duration: 5s
+      factor: 2
+      maxDuration: 1m
+
+apps:
+  argoRollouts:
+    enabled: true
+    chartVersion: 2.43.12
+  metricsServer:
+    enabled: true
+    chartVersion: 3.14.0
+  storefront:
+    enabled: true
+    # Override to point the canary experiments at the in-cluster lab Git server.
+    repoURL: ""
+  tenants:
+    enabled: true
+    teams:
+      - name: payments
+        cpu: "2"
+        memory: 2Gi
+      - name: checkout
+        cpu: "2"
+        memory: 2Gi
+      - name: search
+        cpu: "1"
+        memory: 1Gi
+      - name: identity
+        cpu: "1"
+        memory: 1Gi
+      - name: catalog
+        cpu: "1"
+        memory: 1Gi
+      - name: analytics
+        cpu: "1"
+        memory: 1Gi

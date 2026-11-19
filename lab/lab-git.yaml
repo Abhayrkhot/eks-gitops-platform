@@ -1,0 +1,73 @@
+# In-cluster Git server (Gitea, SQLite, ephemeral). Argo CD reads the repo
+# anonymously; experiments push releases to it, and a push webhook tells
+# Argo CD to refresh at once instead of waiting for the next poll.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab-git
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-git
+  namespace: lab-git
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: lab-git
+  template:
+    metadata:
+      labels:
+        app: lab-git
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: gitea
+          image: gitea/gitea:1.27.3-rootless
+          env:
+            - { name: GITEA__database__DB_TYPE, value: sqlite3 }
+            - { name: GITEA__security__INSTALL_LOCK, value: "true" }
+            - { name: GITEA__server__ROOT_URL, value: "http://lab-git.lab-git.svc.cluster.local:3000/" }
+            - { name: GITEA__server__HTTP_PORT, value: "3000" }
+            - { name: GITEA__server__DISABLE_SSH, value: "true" }
+            - { name: GITEA__service__DISABLE_REGISTRATION, value: "true" }
+            - { name: GITEA__service__REQUIRE_SIGNIN_VIEW, value: "false" }
+            - { name: GITEA__repository__ENABLE_PUSH_CREATE_USER, value: "true" }
+            - { name: GITEA__repository__DEFAULT_PUSH_CREATE_PRIVATE, value: "false" }
+            - { name: GITEA__webhook__ALLOWED_HOST_LIST, value: "*" }
+            - { name: GITEA__webhook__DELIVER_TIMEOUT, value: "5" }
+            - { name: GITEA__log__LEVEL, value: Warn }
+          ports:
+            - name: http
+              containerPort: 3000
+          readinessProbe:
+            httpGet: { path: /api/healthz, port: http }
+            periodSeconds: 2
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/gitea }
+            - { name: config, mountPath: /etc/gitea }
+      volumes:
+        - { name: data, emptyDir: {} }
+        - { name: config, emptyDir: {} }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-git
+  namespace: lab-git
+spec:
+  selector:
+    app: lab-git
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

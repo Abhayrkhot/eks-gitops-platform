@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-config
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+data:
+  message: {{ .Values.release.message | quote }}
+  checkout.enabled: "true"
+  cache.ttlSeconds: "30"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storefront
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: storefront-config-reader
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["storefront-config"]
+    verbs: ["get", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: storefront-config-reader
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: storefront-config-reader
+subjects:
+  - kind: ServiceAccount
+    name: storefront
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: storefront
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "storefront.selector" . | nindent 6 }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: storefront-ingress
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "storefront.selector" . | nindent 6 }}
+  policyTypes: ["Ingress"]
+  ingress:
+    # Only pods in this namespace (load generator, smoke jobs) may call the app.
+    - from:
+        - podSelector: {}
+      ports:
+        - port: 9898

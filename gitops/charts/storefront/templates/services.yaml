@@ -1,0 +1,20 @@
+# storefront        - what clients call: every ready pod, so traffic splits by replica count.
+# storefront-stable - Rollouts pins this to the stable ReplicaSet.
+# storefront-canary - Rollouts pins this to the canary ReplicaSet (smoke tests hit it).
+{{- range $name := list "storefront" "storefront-stable" "storefront-canary" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "storefront.labels" $ | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "storefront.selector" $ | nindent 4 }}
+  ports:
+    - name: http
+      port: 9898
+      targetPort: http
+{{- end }}

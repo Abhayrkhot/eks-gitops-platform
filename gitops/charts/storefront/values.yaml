@@ -1,0 +1,41 @@
+replicaCount: 5
+
+image:
+  repository: ghcr.io/stefanprodan/podinfo
+  pullPolicy: IfNotPresent
+
+# The release under test lives in release.yaml (image tag, id, extra args), so
+# a release is a one-file Git change. These are the defaults it overrides.
+release:
+  id: baseline
+  tag: "6.17.0"
+  message: storefront
+  args: []
+  command: []
+
+rollout:
+  # Canary pods that never become available (crash loop, bad image, OOM,
+  # failing readiness) abort the rollout after this long. Healthy canaries
+  # become available in ~8s here, so 20s leaves room for a cold image pull.
+  progressDeadlineSeconds: 20
+  minReadySeconds: 5
+  steps:
+    - weight: 20
+      pauseSeconds: 0
+    - weight: 60
+      pauseSeconds: 5
+
+analysis:
+  image: curlimages/curl:8.23.0
+  requests: 40
+  maxErrors: 1
+  maxSlowRequests: 2
+  slowMs: 250
+
+resources:
+  requests: { cpu: 20m, memory: 32Mi }
+  limits: { memory: 128Mi }
+
+loadgen:
+  enabled: true
+  intervalSeconds: "0.05"

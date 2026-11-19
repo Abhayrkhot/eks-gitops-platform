@@ -1,0 +1,76 @@
+# Smoke test run against the canary pods only (storefront-canary) at every
+# canary step. Fails fast: it exits as soon as the error or slow-request
+# budget is spent, so a bad release is caught in a couple of seconds.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: storefront-smoke
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+spec:
+  args:
+    - name: service
+  metrics:
+    - name: smoke
+      count: 1
+      failureLimit: 0
+      provider:
+        job:
+          metadata:
+            labels:
+              app.kubernetes.io/name: storefront-smoke
+          spec:
+            backoffLimit: 0
+            activeDeadlineSeconds: 60
+            ttlSecondsAfterFinished: 120
+            template:
+              metadata:
+                labels:
+                  app.kubernetes.io/name: storefront-smoke
+              spec:
+                restartPolicy: Never
+                automountServiceAccountToken: false
+                securityContext:
+                  runAsNonRoot: true
+                  runAsUser: 100
+                  seccompProfile:
+                    type: RuntimeDefault
+                containers:
+                  - name: smoke
+                    image: {{ .Values.analysis.image }}
+                    securityContext:
+                      {{- include "storefront.containerSecurity" . | nindent 22 }}
+                    resources:
+                      requests: { cpu: 10m, memory: 16Mi }
+                      limits: { memory: 64Mi }
+                    env:
+                      - name: TARGET
+                        value: {{ printf "http://{{args.service}}:9898" | quote }}
+                      - name: REQUESTS
+                        value: {{ .Values.analysis.requests | quote }}
+                      - name: MAX_ERRORS
+                        value: {{ .Values.analysis.maxErrors | quote }}
+                      - name: MAX_SLOW
+                        value: {{ .Values.analysis.maxSlowRequests | quote }}
+                      - name: SLOW_MS
+                        value: {{ .Values.analysis.slowMs | quote }}
+                    command: ["/bin/sh", "-c"]
+                    args:
+                      - |
+                        set -u
+                        for path in /healthz /readyz; do
+                          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$TARGET$path")
+                          if [ "$code" != "200" ]; then echo "FAIL $path returned $code"; exit 1; fi
+                        done
+                        errors=0; slow=0; i=0
+                        while [ "$i" -lt "$REQUESTS" ]; do
+                          out=$(curl -s -o /dev/null -w '%{http_code} %{time_total}' --max-time 2 "$TARGET/") || out="000 2"
+                          code=${out% *}; secs=${out#* }
+                          ms=$(awk -v s="$secs" 'BEGIN { printf "%d", s * 1000 }')
+                          [ "$code" = "200" ] || errors=$((errors + 1))
+                          [ "$ms" -le "$SLOW_MS" ] || slow=$((slow + 1))
+                          if [ "$errors" -gt "$MAX_ERRORS" ]; then echo "FAIL errors=$errors after $((i + 1)) requests"; exit 1; fi
+                          if [ "$slow" -gt "$MAX_SLOW" ]; then echo "FAIL slow=$slow (>${SLOW_MS}ms) after $((i + 1)) requests"; exit 1; fi
+                          i=$((i + 1))
+                        done
+                        echo "PASS requests=$REQUESTS errors=$errors slow=$slow"

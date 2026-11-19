@@ -1,0 +1,44 @@
+{{- $ns := printf "team-%s" .Values.team -}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $ns }}
+  labels:
+    platform.gitops/tenant: {{ .Values.team }}
+    # Pod Security Admission: restricted is the floor for every tenant.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-quota
+  namespace: {{ $ns }}
+spec:
+  hard:
+    requests.cpu: {{ .Values.quota.cpu | quote }}
+    requests.memory: {{ .Values.quota.memory | quote }}
+    limits.memory: {{ .Values.quota.memory | quote }}
+    pods: {{ .Values.quota.pods | quote }}
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: team-defaults
+  namespace: {{ $ns }}
+spec:
+  limits:
+    - type: Container
+      default: { memory: 128Mi }
+      defaultRequest: { cpu: 10m, memory: 32Mi }
+      max: { memory: 512Mi }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: team-settings
+  namespace: {{ $ns }}
+data:
+  team: {{ .Values.team | quote }}
+  oncall.channel: {{ printf "#%s-oncall" .Values.team | quote }}
+  log.level: info

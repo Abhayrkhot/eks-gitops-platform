@@ -1,0 +1,98 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: storefront
+  labels:
+    {{- include "storefront.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
+  # A pod only counts as available after staying ready this long, so a
+  # process that dies right after start cannot pass a canary step.
+  minReadySeconds: {{ .Values.rollout.minReadySeconds }}
+  progressDeadlineSeconds: {{ .Values.rollout.progressDeadlineSeconds }}
+  progressDeadlineAbort: true
+  selector:
+    matchLabels:
+      {{- include "storefront.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "storefront.labels" . | nindent 8 }}
+      annotations:
+        platform.gitops/release: {{ .Values.release.id | quote }}
+    spec:
+      serviceAccountName: storefront
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        {{- include "storefront.podSecurity" . | nindent 8 }}
+      containers:
+        - name: podinfo
+          image: "{{ .Values.image.repository }}:{{ .Values.release.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.release.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- else }}
+          command: ["./podinfo"]
+          {{- end }}
+          args:
+            - --port=9898
+            - --level=warn
+            {{- range .Values.release.args }}
+            - {{ . | quote }}
+            {{- end }}
+          env:
+            - name: PODINFO_UI_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: storefront-config
+                  key: message
+            - name: RELEASE_ID
+              value: {{ .Values.release.id | quote }}
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 2
+            failureThreshold: 2
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- include "storefront.containerSecurity" . | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+  strategy:
+    canary:
+      stableService: storefront-stable
+      canaryService: storefront-canary
+      # On abort, drop canary pods at once instead of after the default 30s.
+      abortScaleDownDelaySeconds: 0
+      steps:
+        {{- range .Values.rollout.steps }}
+        - setWeight: {{ .weight }}
+        - analysis:
+            templates:
+              - templateName: storefront-smoke
+            args:
+              - name: service
+                value: storefront-canary
+        {{- if .pauseSeconds }}
+        - pause:
+            duration: {{ .pauseSeconds }}s
+        {{- end }}
+        {{- end }}
