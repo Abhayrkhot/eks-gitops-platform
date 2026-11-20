@@ -1,0 +1,128 @@
+{
+  "cycles": [
+    {
+      "cycle": 1,
+      "infra_s": 792,
+      "platform_ready_s": 874.2,
+      "platform_s": 82,
+      "steps_s": {
+        "Argo CD + root app": 82,
+        "EKS cluster": 487,
+        "VPC stack": 185,
+        "cluster role": 12,
+        "node role + node group": 108
+      },
+      "teardown_s": 735.0861186981201,
+      "up_s": 874.1524128913879
+    },
+    {
+      "cycle": 2,
+      "infra_s": 790,
+      "platform_ready_s": 881.1,
+      "platform_s": 91,
+      "steps_s": {
+        "Argo CD + root app": 91,
+        "EKS cluster": 516,
+        "VPC stack": 156,
+        "cluster role": 12,
+        "node role + node group": 106
+      },
+      "teardown_s": 735.9863855838776,
+      "up_s": 881.0618708133698
+    },
+    {
+      "cycle": 3,
+      "infra_s": 791,
+      "platform_ready_s": 883.0,
+      "platform_s": 92,
+      "steps_s": {
+        "Argo CD + root app": 92,
+        "EKS cluster": 486,
+        "VPC stack": 186,
+        "cluster role": 12,
+        "node role + node group": 107
+      },
+      "teardown_s": 735.94109582901,
+      "up_s": 883.0340311527252
+    }
+  ],
+  "summary": {
+    "cycles": 3,
+    "env": "dev",
+    "infra_seconds": {
+      "max": 792,
+      "mean": 791.0,
+      "min": 790,
+      "n": 3,
+      "p50": 791,
+      "p95": 792
+    },
+    "method": "sequential CLI runbook",
+    "platform_ready_minutes": {
+      "max": 14.72,
+      "mean": 14.66,
+      "min": 14.57,
+      "n": 3,
+      "p50": 14.69,
+      "p95": 14.72
+    },
+    "platform_seconds": {
+      "max": 92,
+      "mean": 88.33,
+      "min": 82,
+      "n": 3,
+      "p50": 91,
+      "p95": 92
+    },
+    "steps_seconds": {
+      "Argo CD + root app": {
+        "max": 92,
+        "mean": 88.33,
+        "min": 82,
+        "n": 3,
+        "p50": 91,
+        "p95": 92
+      },
+      "EKS cluster": {
+        "max": 516,
+        "mean": 496.33,
+        "min": 486,
+        "n": 3,
+        "p50": 487,
+        "p95": 516
+      },
+      "VPC stack": {
+        "max": 186,
+        "mean": 175.67,
+        "min": 156,
+        "n": 3,
+        "p50": 185,
+        "p95": 186
+      },
+      "cluster role": {
+        "max": 12,
+        "mean": 12.0,
+        "min": 12,
+        "n": 3,
+        "p50": 12,
+        "p95": 12
+      },
+      "node role + node group": {
+        "max": 108,
+        "mean": 107.0,
+        "min": 106,
+        "n": 3,
+        "p50": 107,
+        "p95": 108
+      }
+    },
+    "teardown_minutes": {
+      "max": 12.27,
+      "mean": 12.26,
+      "min": 12.25,
+      "n": 3,
+      "p50": 12.27,
+      "p95": 12.27
+    }
+  }
+}

@@ -14,6 +14,17 @@ while true; do
   apps=$(kubectl -n argocd get applications.argoproj.io -o json 2>/dev/null || echo '{"items":[]}')
   total=$(jq '.items | length' <<<"$apps")
   ready=$(jq '[.items[] | select(.status.sync.status == "Synced" and .status.health.status == "Healthy")] | length' <<<"$apps")
+  # Timeline: one line whenever any app's sync/health state changes, so slow convergence can be attributed.
+  # Apps not yet Synced+Healthy also carry their first condition / operation message (why they wait).
+  state=$(jq -r '[.items[] | "\(.metadata.name)=\(.status.sync.status // "-")/\(.status.health.status // "-")"
+      + (if (.status.sync.status == "Synced" and .status.health.status == "Healthy") then "" else
+          ([(.status.conditions // [])[0] | select(.) | "\(.type): \(.message)"]
+           + [.status.operationState | select(. and .phase != "Succeeded") | "op \(.phase): \(.message // "")"]
+           | map(.[0:120]) | if length > 0 then " {" + join("; ") + "}" else "" end) end)] | sort | join(" ")' <<<"$apps")
+  if [[ "$state" != "${last_state:-}" ]]; then
+    echo "[+${elapsed}s] ${ready}/${total} ready: ${state}"
+    last_state=$state
+  fi
   if [[ "$total" -ge "$EXPECTED" && "$ready" -eq "$total" ]]; then
     echo "platform ready: ${ready}/${total} apps Synced+Healthy after ${elapsed}s"
     exit 0

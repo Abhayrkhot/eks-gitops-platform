@@ -1,0 +1,31 @@
+{
+  "cycles": [
+    {
+      "cycle": 1,
+      "platform_ready_s": 938.4,
+      "teardown_s": 704.6339817047119,
+      "up_s": 938.3873648643494
+    }
+  ],
+  "summary": {
+    "cycles": 1,
+    "env": "dev",
+    "method": "sequential CLI runbook",
+    "platform_ready_minutes": {
+      "max": 15.64,
+      "mean": 15.64,
+      "min": 15.64,
+      "n": 1,
+      "p50": 15.64,
+      "p95": 15.64
+    },
+    "teardown_minutes": {
+      "max": 11.74,
+      "mean": 11.74,
+      "min": 11.74,
+      "n": 1,
+      "p50": 11.74,
+      "p95": 11.74
+    }
+  }
+}

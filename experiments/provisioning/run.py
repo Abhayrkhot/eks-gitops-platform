@@ -31,6 +31,22 @@ from lib import RESULTS, ROOT, WORK, log, summarize, write_json  # noqa: E402
 
 CREATED = re.compile(r"^(?P<addr>\S+): Creation complete after (?P<dur>[0-9hms]+)")
 DESTROYED = re.compile(r"^(?P<addr>\S+): Destruction complete after (?P<dur>[0-9hms]+)")
+# baseline-runbook.sh stamps each step: "[HH:MM:SS] 3/5 EKS cluster" ... "[HH:MM:SS] runbook complete"
+STAMP = re.compile(r"^\[(\d\d):(\d\d):(\d\d)\] (?:\d/\d )?(?P<label>.+)$")
+# Runbook steps grouped like the Terraform phases, so the comparison lines up.
+RUNBOOK_INFRA = ("VPC stack", "cluster role", "EKS cluster", "node role + node group")
+RUNBOOK_GITOPS = ("Argo CD + root app",)
+
+
+def runbook_steps(output: str) -> dict[str, int]:
+    """Seconds per runbook step, from consecutive step stamps (1s resolution)."""
+    marks = []
+    for line in output.splitlines():
+        m = STAMP.match(line.strip())
+        if m:
+            h, mi, s = (int(x) for x in m.groups()[:3])
+            marks.append((h * 3600 + mi * 60 + s, m["label"]))
+    return {label: (t1 - t0) % 86400 for (t0, label), (t1, _) in zip(marks, marks[1:])}
 
 
 def seconds(d: str) -> int:
@@ -80,7 +96,11 @@ def main() -> None:
         rec: dict = {"cycle": i}
         t0 = time.time()
         if args.baseline:
-            rec["up_s"], _ = step("runbook", ["experiments/provisioning/baseline-runbook.sh", "up"], logfile, env)
+            rec["up_s"], up_out = step("runbook", ["experiments/provisioning/baseline-runbook.sh", "up"], logfile, env)
+            rec["steps_s"] = runbook_steps(up_out)
+            rec["infra_s"] = sum(rec["steps_s"].get(k, 0) for k in RUNBOOK_INFRA)
+            rec["platform_s"] = sum(rec["steps_s"].get(k, 0) for k in RUNBOOK_GITOPS)
+            log("  steps     " + ", ".join(f"{k} {v}s" for k, v in rec["steps_s"].items()))
         else:
             rec["infra_s"], infra_out = step("infra", ["make", "infra", f"ENV={args.env}"], logfile, env)
             rec["access_s"], _ = step("access", ["make", "kubeconfig", f"ENV={args.env}"], logfile, env)
@@ -106,9 +126,16 @@ def main() -> None:
         "platform_ready_minutes": summarize([c["platform_ready_s"] / 60 for c in cycles]),
         "teardown_minutes": summarize([c["teardown_s"] / 60 for c in cycles if "teardown_s" in c]),
     }
-    if not args.baseline:
+    if args.baseline:
+        summary["infra_seconds"] = summarize([c["infra_s"] for c in cycles])
+        summary["platform_seconds"] = summarize([c["platform_s"] for c in cycles])
+        summary["steps_seconds"] = {k: summarize([c["steps_s"][k] for c in cycles if k in c["steps_s"]])
+                                    for k in RUNBOOK_INFRA + RUNBOOK_GITOPS}
+    else:
         for phase in ("infra_s", "access_s", "gitops_s", "converge_s"):
             summary[phase.replace("_s", "_seconds")] = summarize([c[phase] for c in cycles])
+        # Same grouping as the runbook: everything after the AWS resources exist.
+        summary["platform_seconds"] = summarize([c["access_s"] + c["gitops_s"] + c["converge_s"] for c in cycles])
     name = "provisioning-baseline" if args.baseline else "provisioning"
     write_json(RESULTS / args.env / f"{name}-{stamp}.json", {"summary": summary, "cycles": cycles})
     print(yaml.safe_dump(summary, sort_keys=False))

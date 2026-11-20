@@ -13,7 +13,8 @@ Every number below comes from a harness in `experiments/` and is written to `res
 
 | Area | What was measured | Result |
 |---|---|---|
-| Provisioning | Empty account to every Argo CD app Synced+Healthy, 3 timed cycles (`terraform apply`, kubeconfig, Argo CD, convergence from Git) | Median **15.5 min**, max **16.3 min**. `terraform apply` 10.8 min, Argo CD install 1.0 min, convergence 4.3 min. Teardown median 11.7 min |
+| Provisioning | Empty account to every Argo CD app Synced+Healthy, 3 timed cycles (`terraform apply`, kubeconfig, Argo CD, convergence from Git) | Median **13.1 min** (13.1–13.2). `terraform apply` 11.3 min, Argo CD install 1.1 min, every app converged from Git in 40–48s. Teardown median 11.2 min |
+| | Same platform built by AWS's getting-started CLI steps, scripted at machine speed, 3 cycles | Median 14.7 min (14.6–14.7). Terraform + GitOps is **11% faster** end to end and **14% faster** on the AWS resources (11.3 vs 13.2 min), mostly because Terraform builds the NAT gateway, node role and launch template while the EKS control plane comes up, instead of waiting for a whole VPC stack first |
 | Progressive delivery | 56 bad releases (7 fault types × 8) shipped through Git | **56/56 rolled back automatically**, none escaped. Recovery to full stable capacity: median 25.8s, **max 27.4s**. Bad version out of traffic in at most 21.8s |
 | | 8 good releases interleaved | 8/8 promoted, **0 false aborts** |
 | | Client traffic during the bad releases | 90 of 20,579 requests failed (0.44%) |
@@ -23,7 +24,7 @@ Every number below comes from a harness in `experiments/` and is written to `res
 | | Safe pull requests and no-change plans | **14/14 passed**, 0 false positives |
 | IAM guardrails | Real API calls the CI roles must not be able to make | **28/28 denied**: 25 live by the roles' policies and permissions boundary, 3 decided by the IAM policy simulator because the live call couldn't show it (see `docs/results.md`). Controls: 5/5 allowed in the first run; in the final run one dry-run launch was blocked by the account's own organization policy |
 
-Not measured yet: the comparison baseline, which provisions the same cluster by following AWS's getting-started CLI steps. During the run, the AWS Organization that owns the account attached a policy denying all compute creation (`eks:CreateCluster`, `ec2:RunInstances`, `cloudformation:CreateStack`, and more). It runs with `experiments/provisioning/run.py --baseline` once that is lifted.
+About 8–9 minutes of either path is AWS creating the EKS control plane, which no tool can shorten. The baseline is a script, not a person following the guide by hand, so it's a lower bound for the manual path. The two methods ran back to back on the same evening, in the same region, with the same Kubernetes version, nodes, charts and Git source. An earlier set of 3 Terraform cycles took 13.8–16.3 min because, in 2 of them, Argo CD's first convergence stalled for 1–4 min. That set had no convergence timeline, so the cause wasn't captured. Neither these 3 instrumented cycles nor any of the 4 baseline cycles stalled. See `docs/results.md`.
 
 ### Local lab (kind + moto) and CI
 

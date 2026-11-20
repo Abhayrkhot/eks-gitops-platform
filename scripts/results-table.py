@@ -10,6 +10,7 @@ experiment harness; nothing is typed in by hand.
 from __future__ import annotations
 
 import json
+import statistics
 import sys
 from pathlib import Path
 
@@ -157,9 +158,34 @@ def provisioning(env: str) -> list[str]:
                 f"min {s(sm['platform_ready_minutes'], 'min', ' min')}, max {s(sm['platform_ready_minutes'], 'max', ' min')} "
                 f"over {sm['cycles']} cycles; teardown median {s(sm['teardown_minutes'], 'p50', ' min')}."]
         for phase in ("infra_seconds", "access_seconds", "gitops_seconds", "converge_seconds"):
-            if phase in sm:
+            if phase in sm and prefix == "provisioning":
                 out.append(f"- {phase.split('_')[0]}: median {s(sm[phase])}")
+        for name, st in sm.get("steps_seconds", {}).items():
+            out.append(f"- {name}: median {s(st)}")
         out.append("")
+    tf, base = newest(env, "provisioning"), newest(env, "provisioning-baseline")
+    if tf and base and "platform_seconds" in base[1]["summary"]:
+        t, b = dict(tf[1]["summary"]), dict(base[1]["summary"])
+        if "platform_seconds" not in t:  # older Terraform runs: same grouping, from the per-cycle phases
+            vals = [c["access_s"] + c["gitops_s"] + c["converge_s"] for c in tf[1]["cycles"]]
+            t["platform_seconds"] = {"min": min(vals), "p50": statistics.median(vals), "max": max(vals)}
+
+        def row(label: str, key: str, unit: float = 60.0, suffix: str = " min") -> str:
+            tv, bv = t[key], b[key]
+            delta = (bv["p50"] - tv["p50"]) / bv["p50"] * 100 if bv.get("p50") else 0
+            return (f"| {label} | {tv['p50'] / unit:.1f}{suffix} ({tv['min'] / unit:.1f}–{tv['max'] / unit:.1f}) | "
+                    f"{bv['p50'] / unit:.1f}{suffix} ({bv['min'] / unit:.1f}–{bv['max'] / unit:.1f}) | {delta:+.0f}% |")
+
+        ready = {k: {q: v * 60 for q, v in sm_["platform_ready_minutes"].items() if q != "n"}
+                 for k, sm_ in (("t", t), ("b", b))}
+        t["ready_seconds"], b["ready_seconds"] = ready["t"], ready["b"]
+        out += ["### Provisioning comparison (median, range)", "",
+                f"Terraform modules + GitOps: {t['cycles']} cycles. AWS getting-started CLI steps, scripted: "
+                f"{b['cycles']} cycles. Same region, Kubernetes version, instance type, node count, charts and Git source.",
+                "", "| Phase | Terraform + GitOps | CLI runbook | Time saved |", "|---|---|---|---|",
+                row("AWS resources (VPC, IAM, EKS, nodes)", "infra_seconds"),
+                row("Argo CD + every app Synced+Healthy", "platform_seconds"),
+                row("**Empty account to platform ready**", "ready_seconds"), ""]
     return out
 
 
